@@ -1,1 +1,4 @@
-Hello 
+git add .
+git commit -m "Added basic GitHub Actions CI workflow with Node.js runner"
+
+This commit introduces a Continuous Integration (CI) workflow using GitHub Actions.
