@@ -9,7 +9,7 @@
     - Any refactoring or bug fixes.
 
     ## How to Test
-    Steps for reviewers to verify the changes:
+    Steps for reviewers to verify the changes locally and in CI:
     1. Navigate to [specific URL/page].
     2. Perform [specific action].
     3. Observe [expected outcome].
@@ -19,3 +19,4 @@
     - [ ] Tests have been added or updated (if applicable).
     - [ ] Documentation has been updated (if applicable).
     - [ ] All new and existing tests pass.
+    - [ ] Linked Jira issue and acceptance criteria met
