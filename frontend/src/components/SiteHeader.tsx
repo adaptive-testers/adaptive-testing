@@ -2,7 +2,7 @@ export default function SiteHeader() {
 
 
     return <>
-        <p>Header!</p>
+        <p className="text-white">Header!</p>
     </>
 
 }

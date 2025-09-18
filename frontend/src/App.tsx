@@ -6,11 +6,9 @@ function App() {
 
 
   return (
-    <>
-    <SiteHeader>
-      
-    </SiteHeader>
-    </>
+      <div className="bg-black min-h-screen">
+        <SiteHeader />
+      </div>
   )
 }
 
