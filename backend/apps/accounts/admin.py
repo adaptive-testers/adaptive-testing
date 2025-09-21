@@ -8,7 +8,7 @@ from .models import User
 class UserAdmin(UserAdmin):
     """Admin configuration for the custom User model"""
     list_display = ('email', 'first_name', 'last_name', 'is_verified', 'is_active', 'created_at')
-    list_filter = ('is_verified', 'is_active', 'is_staff', 'is_superuser', 'created_at', 'oauth_provider')
+    list_filter = ('role', 'is_verified', 'is_active', 'is_staff', 'is_superuser', 'created_at', 'oauth_provider')
     search_fields = ('email', 'first_name', 'last_name')
     ordering = ('-created_at',)
 
