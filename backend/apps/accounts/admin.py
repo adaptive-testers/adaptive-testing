@@ -15,7 +15,7 @@ class UserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Personal info', {'fields': ('first_name', 'last_name')}),
-        ('Permissions', {'fields': ('is_active', 'is_verified', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Permissions', {'fields': ('is_active', 'is_verified', 'is_staff', 'is_superuser', 'groups', 'user_permissions', 'role')}),
         ('Important dates', {'fields': ('last_login', 'created_at', 'updated_at')}),
         ('OAuth', {'fields': ('oauth_provider', 'oauth_id')}),
     )
