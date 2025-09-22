@@ -7,7 +7,7 @@ function App() {
 
 
   return (
-      <div className="bg-black min-h-screen flex flex-col items-center gap-10">
+      <div className="bg-black min-h-screen flex flex-col items-center gap-15">
         <SiteHeader />
         <SignUpContainer />
       </div>
