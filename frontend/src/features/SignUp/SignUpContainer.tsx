@@ -1,11 +1,20 @@
 import { MdOutlineMailOutline } from "react-icons/md";
 import { IoPersonOutline } from "react-icons/io5";
 import { TbLockPassword } from "react-icons/tb";
+import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 
 
 
+
+
+
+
+
+import { useState } from "react";
 
 export default function SignUpContainer() {
+    const [showPassword, setShowPassword] = useState(false);
+    const handlePasswordToggle = () => setShowPassword((prev) => !prev);
 
     return <>
         <div className="
@@ -36,8 +45,19 @@ export default function SignUpContainer() {
 
                     <div className="relative">
                         <label htmlFor="password-input" className="text-[#8e8e8e] geist-font text-sm font-[450]">Password</label>
-                        <input id="password-input" type="password" className="peer text-white text-sm pl-10 pr-2 h-9 w-full bg-neutral-950 border-[#282828] border-[1.5px] rounded-lg focus:border-[rgba(174,58,58,0.4)] focus:outline-none" />
+                        <input
+                            id="password-input"
+                            type={showPassword ? "text" : "password"}
+                            className="peer text-white text-sm pl-10 pr-10 h-9 w-full bg-neutral-950 border-[#282828] border-[1.5px] rounded-lg focus:border-[rgba(174,58,58,0.4)] focus:outline-none"
+                        />
                         <TbLockPassword className="absolute left-[10px] top-[70%] -translate-y-1/2 text-[#8e8e8e] peer-focus:text-white text-sm pointer-events-none" />
+                            <button
+                                type="button"
+                                aria-label={showPassword ? "Hide password" : "Show password"}
+                                onClick={handlePasswordToggle}
+                                className="absolute right-[10px] top-[72%] -translate-y-1/2 text-[#8e8e8e] text-sm cursor-pointer hover:text-white transition-colors duration-300 bg-transparent border-none p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ae3a3a] rounded">
+                                {showPassword ? <IoEyeOutline /> : <IoEyeOffOutline />}
+                            </button>
                     </div>
 
                 </form>
