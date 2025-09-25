@@ -1,4 +1,4 @@
-import sdsuLogo from '../assets/sdsuLogo.png';
+
 export default function SiteHeader() {
 
 
