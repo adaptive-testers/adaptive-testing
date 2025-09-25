@@ -3,6 +3,7 @@ export default function SiteHeader() {
 
 
     return <>
+
         <div className="flex justify-center">
             <button className="transform   origin-center will-change-transform transition-transform hover:scale-110 cursor-pointer">
             <div className="flex gap-4.5 mt-5">
@@ -12,6 +13,7 @@ export default function SiteHeader() {
             </div>
             </button>
         </div>
+       
     </>
 
 }
