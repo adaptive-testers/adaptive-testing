@@ -18,15 +18,25 @@ type FormFields = {
 
 
 export default function SignUpContainer() {
-    const {register, handleSubmit, formState: { errors, isSubmitting }} = useForm<FormFields>();
+    const {register, handleSubmit, setError, formState: { errors, isSubmitting }} = useForm<FormFields>();
 
     const [showPassword, setShowPassword] = useState(false);
 
     const handlePasswordToggle = () => setShowPassword((prev) => !prev);
 
     const onSubmit: SubmitHandler<FormFields> = async (data) => {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log(data);
+        try {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            console.log(data);
+            throw new Error("Simulated server error");
+        }
+        
+        catch (error){
+            setError("userEmail", {
+                message: "Please use a valid email address.",
+            })
+        }
+        
     };
 
 
@@ -94,8 +104,11 @@ export default function SignUpContainer() {
                         <button disabled={isSubmitting} className="text-white bg-[#EF6262] w-full h-[35px] rounded-[6px] tracking-wider geist-font font-[250] text-[13px] mt-4 cursor-pointer transition-all duration-200 origin-center will-change-transform hover:scale-105 hover:bg-[#C04A4A] hover:shadow-[0_2px_12px_0_rgba(192,74,74,0.25)]">
                             {isSubmitting ? "Creating account..." : "Create Account"} </button>
                     </div>
+                 
+                    
 
                 </form>
+                
 
                 <div className="mt-8">
                     <div className="flex items-center w-full gap-1">
