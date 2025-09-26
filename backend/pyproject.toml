@@ -121,6 +121,10 @@ ignore_missing_imports = true
 module = "dj_database_url.*"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "apps.*.tests.*"
+disallow_untyped_defs = false
+
 plugins = ["mypy_django_plugin.main"]
 
 [tool.django-stubs]
