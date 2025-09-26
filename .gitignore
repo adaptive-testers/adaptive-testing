@@ -16,6 +16,7 @@ staticfiles/
 .tox/
 .coverage
 htmlcov/
+coverage.xml
 .pytest_cache/
 *.tar.gz
 *.zip

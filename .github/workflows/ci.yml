@@ -18,10 +18,7 @@ jobs:
       run:
         working-directory: backend
     env:
-      SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-      DEBUG: false
-      DATABASE_URL: ${{ secrets.DATABASE_URL != '' && secrets.DATABASE_URL || 'sqlite:///db.sqlite3' }}
-      CORS_ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+      DJANGO_SETTINGS_MODULE: adaptive_testing.settings.ci
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
@@ -48,9 +45,9 @@ jobs:
       - name: Run type checking
         run: poetry run mypy .
       - name: Run migrations
-        run: poetry run python manage.py migrate
+        run: poetry run python manage.py migrate --settings=adaptive_testing.settings.ci
       - name: Run tests
-        run: poetry run pytest --cov=adaptive_testing --cov=apps --cov-report=xml --cov-report=html
+        run: poetry run pytest --cov=adaptive_testing --cov=apps --cov-report=xml --cov-report=html --ds=adaptive_testing.settings.ci
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
