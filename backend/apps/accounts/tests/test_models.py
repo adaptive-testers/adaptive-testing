@@ -7,7 +7,6 @@ from django.contrib.auth import get_user_model
 
 from apps.accounts.models import UserRole
 
-
 User = get_user_model()
 
 
@@ -103,6 +102,8 @@ def test_user_email_lowercase():
 @pytest.mark.django_db
 def test_user_unique_email(user_data):
     """Test that email must be unique."""
+    from django.db import IntegrityError
+
     User.objects.create_user(**user_data)
-    with pytest.raises(Exception):  # Should raise IntegrityError
+    with pytest.raises(IntegrityError):
         User.objects.create_user(**user_data)
