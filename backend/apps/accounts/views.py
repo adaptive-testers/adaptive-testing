@@ -1,4 +1,7 @@
+from typing import Any
+
 from django.contrib.auth import authenticate  # noqa: F401
+from django.http import HttpRequest
 from rest_framework import generics, status  # noqa: F401
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -33,7 +36,7 @@ class UserRegistrationView(generics.CreateAPIView):
     # serializer_class = UserSerializer # TODO: Create UserRegistrationSerializer
     permission_classes = [AllowAny]
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request: Any, *args: Any, **kwargs: Any) -> None:
         # TODO: Implement user registration logic
         # 1. Validate serializer
         # 2. Create user
@@ -42,9 +45,9 @@ class UserRegistrationView(generics.CreateAPIView):
         pass
 
 
-@api_view(["POST"])
-@permission_classes([AllowAny])
-def user_login_view(request): # noqa: ARG001
+@api_view(["POST"])  # type: ignore[misc]
+@permission_classes([AllowAny])  # type: ignore[misc]
+def user_login_view(request: HttpRequest) -> Response: # noqa: ARG001
     """
     User login endpoint.
 
@@ -61,9 +64,9 @@ def user_login_view(request): # noqa: ARG001
     pass
 
 
-@api_view(["GET", "PUT"])
-@permission_classes([IsAuthenticated])
-def user_profile_view(request): # noqa: ARG001
+@api_view(["GET", "PUT"])  # type: ignore[misc]
+@permission_classes([IsAuthenticated])  # type: ignore[misc]
+def user_profile_view(request: HttpRequest) -> Response: # noqa: ARG001
     """
     User profile endpoint.
 

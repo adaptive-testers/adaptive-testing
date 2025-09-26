@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
@@ -89,35 +91,35 @@ class User(AbstractUser):
         verbose_name_plural = "Users"
         ordering = ["-created_at"]
 
-    def __str__(self):
-        return self.email
+    def __str__(self) -> str:
+        return str(self.email)
 
     @property
-    def full_name(self):
+    def full_name(self) -> str:
         """Return the user's full name"""
         return f"{self.first_name} {self.last_name}".strip()
 
     @property
-    def display_name(self):
+    def display_name(self) -> str:
         """Return the user's display name"""
         return self.full_name if self.full_name else self.email.split("@")[0]
 
     @property
-    def is_admin(self):
+    def is_admin(self) -> bool:
         """Return True if the user is an admin"""
-        return self.role == UserRole.ADMIN
+        return bool(self.role == UserRole.ADMIN)
 
     @property
-    def is_instructor(self):
+    def is_instructor(self) -> bool:
         """Return True if the user is an instructor"""
-        return self.role == UserRole.INSTRUCTOR
+        return bool(self.role == UserRole.INSTRUCTOR)
 
     @property
-    def is_student(self):
+    def is_student(self) -> bool:
         """Return True if the user is a student"""
-        return self.role == UserRole.STUDENT
+        return bool(self.role == UserRole.STUDENT)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args: Any, **kwargs: Any) -> None:
         """Override save to ensure email is lowercase"""
         self.email = self.email.lower()
         super().save(*args, **kwargs)
