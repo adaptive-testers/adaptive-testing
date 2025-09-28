@@ -167,7 +167,7 @@ jobs:
       
       # Actionlint - GitHub Actions security
       - name: Run Actionlint
-        uses: rhysd/actionlint@v1.7.0
+        uses: rhysd/actionlint@v1.7.7
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           fail_on_error: true
