@@ -6,16 +6,24 @@ This module contains settings specifically for CI/CD environments.
 
 from datetime import timedelta
 
+from decouple import config
+
 from .base import *  # noqa: F403, F401
 
-# Use a simple file-based SQLite for CI (instead of in-memory)
-# This avoids migration issues while still being fast
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "/tmp/test_ci.db",
+# Database configuration
+# Use Neon database if DATABASE_URL is set, otherwise use a simple file-based SQLite
+if config("DATABASE_URL", default=None):
+    import dj_database_url
+    DATABASES = {
+        "default": dj_database_url.parse(config("DATABASE_URL"))
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": "/tmp/test_ci.db",
+        }
+    }
 
 # Disable password hashing for faster CI
 PASSWORD_HASHERS = [
