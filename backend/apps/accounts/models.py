@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
@@ -6,9 +8,10 @@ from .managers import UserManager
 
 
 class UserRole(models.TextChoices):
-    ADMIN = 'admin', 'Admin'
-    INSTRUCTOR = 'instructor', 'Instructor'
-    STUDENT = 'student', 'Student'
+    ADMIN = "admin", "Admin"
+    INSTRUCTOR = "instructor", "Instructor"
+    STUDENT = "student", "Student"
+
 
 class User(AbstractUser):
     """
@@ -19,114 +22,104 @@ class User(AbstractUser):
     - Add additional fields for user profiles
     - Support both traditional auth and social auth
     """
+
     # Remove username field
     username = None
 
     # Set email as the primary identifier
     email = models.EmailField(
-        unique=True,
-        help_text="User's email address (used as username)"
+        unique=True, help_text="User's email address (used as username)"
     )
 
     # Add additional fields for user profiles
-    first_name = models.CharField(
-        max_length=40,
-        help_text="User's first name"
-    )
-    last_name = models.CharField(
-        max_length=40,
-        help_text="User's last name"
-    )
+    first_name = models.CharField(max_length=40, help_text="User's first name")
+    last_name = models.CharField(max_length=40, help_text="User's last name")
 
     role = models.CharField(
         max_length=20,
         choices=UserRole.choices,
         default=UserRole.STUDENT,
-        help_text="User's role in the system"
+        help_text="User's role in the system",
     )
 
     # User status fields
     is_active = models.BooleanField(
-        default=True,
-        help_text="Whether the user account is active"
+        default=True, help_text="Whether the user account is active"
     )
     is_verified = models.BooleanField(
-        default=False,
-        help_text="Whether the user's email has been verified"
+        default=False, help_text="Whether the user's email has been verified"
     )
 
     # Timestamps
     created_at = models.DateTimeField(
-        auto_now_add=True,
-        help_text="Date and time when the user account was created"
+        auto_now_add=True, help_text="Date and time when the user account was created"
     )
     updated_at = models.DateTimeField(
-        auto_now=True,
-        help_text="Date and time when the user account was last updated"
+        auto_now=True, help_text="Date and time when the user account was last updated"
     )
     last_login = models.DateTimeField(
         default=timezone.now,
         null=True,
         blank=True,
-        help_text="Date and time when the user last logged in"
+        help_text="Date and time when the user last logged in",
     )
 
     # Oauth fields
     oauth_provider = models.CharField(
         max_length=50,
-        null=True,
         blank=True,
-        help_text="The provider of the user's OAuth account"
+        default="",
+        help_text="The provider of the user's OAuth account",
     )
     oauth_id = models.CharField(
         max_length=255,
-        null=True,
         blank=True,
-        help_text="The ID of the user's OAuth account"
+        default="",
+        help_text="The ID of the user's OAuth account",
     )
 
     # Set email as the USERNAME_FIELD
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name']
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["first_name", "last_name"]
 
     # Set the custom user manager
     objects = UserManager()
 
     class Meta:
-        db_table = 'auth_user'
+        db_table = "auth_user"
         verbose_name = "User"
         verbose_name_plural = "Users"
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
-    def __str__(self):
-        return self.email
+    def __str__(self) -> str:
+        return str(self.email)
 
     @property
-    def full_name(self):
+    def full_name(self) -> str:
         """Return the user's full name"""
         return f"{self.first_name} {self.last_name}".strip()
 
     @property
-    def display_name(self):
+    def display_name(self) -> str:
         """Return the user's display name"""
-        return self.full_name if self.full_name else self.email.split('@')[0]
+        return self.full_name if self.full_name else self.email.split("@")[0]
 
     @property
-    def is_admin(self):
+    def is_admin(self) -> bool:
         """Return True if the user is an admin"""
-        return self.role == UserRole.ADMIN
+        return bool(self.role == UserRole.ADMIN)
 
     @property
-    def is_instructor(self):
+    def is_instructor(self) -> bool:
         """Return True if the user is an instructor"""
-        return self.role == UserRole.INSTRUCTOR
+        return bool(self.role == UserRole.INSTRUCTOR)
 
     @property
-    def is_student(self):
+    def is_student(self) -> bool:
         """Return True if the user is a student"""
-        return self.role == UserRole.STUDENT
+        return bool(self.role == UserRole.STUDENT)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args: Any, **kwargs: Any) -> None:
         """Override save to ensure email is lowercase"""
         self.email = self.email.lower()
         super().save(*args, **kwargs)

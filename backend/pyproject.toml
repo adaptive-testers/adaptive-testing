@@ -89,3 +89,43 @@ exclude_lines = [
     "raise AssertionError",
     "raise NotImplementedError"
 ]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = "django.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "rest_framework.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "decouple.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "dj_database_url.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "apps.*.tests.*"
+disallow_untyped_defs = false
+
+plugins = ["mypy_django_plugin.main"]
+
+[tool.django-stubs]
+django_settings_module = "adaptive_testing.settings"
