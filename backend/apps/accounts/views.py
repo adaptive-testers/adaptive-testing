@@ -2,18 +2,21 @@ from typing import Any
 
 from django.contrib.auth import authenticate  # noqa: F401
 from django.http import HttpRequest
-from rest_framework import generics, status  # noqa: F401
+from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response  # noqa: F401
-from rest_framework_simplejwt.tokens import RefreshToken  # noqa: F401
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
-
-# from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserProfileSerializer
+from .serializers import (  # noqa: F401
+    UserLoginSerializer,
+    UserProfileSerializer,
+    UserRegistrationSerializer,
+)
 
 # TODO: Create serializers.py file with these serializers:
-# - UserRegistrationSerializer
+# - UserRegistrationSerializer DONE
 # - UserLoginSerializer
 # - UserProfileSerializer
 
@@ -33,20 +36,33 @@ class UserRegistrationView(generics.CreateAPIView):
     """
 
     queryset = User.objects.all()
-    # serializer_class = UserSerializer # TODO: Create UserRegistrationSerializer
+    serializer_class = UserRegistrationSerializer
     permission_classes = [AllowAny]
 
-    def create(self, request: Any, *args: Any, **kwargs: Any) -> None:
+    def create(self, request: Any) -> Response:
         # TODO: Implement user registration logic
         # 1. Validate serializer
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
         # 2. Create user
+        user = serializer.save()
+
         # 3. Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+
         # 4. Return user data + tokens
-        pass
+        data = serializer.data
+        data["tokens"] = {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }
+
+        return Response(data, status=status.HTTP_201_CREATED)
 
 
-@api_view(["POST"])  # type: ignore[misc]
-@permission_classes([AllowAny])  # type: ignore[misc]
+@api_view(["POST"])
+@permission_classes([AllowAny])
 def user_login_view(request: HttpRequest) -> Response: # noqa: ARG001
     """
     User login endpoint.
@@ -61,11 +77,11 @@ def user_login_view(request: HttpRequest) -> Response: # noqa: ARG001
     # 1. Validate credentials
     # 2. Generate JWT tokens
     # 3. Return user data + tokens
-    pass
+    return Response({"message": "Not implemented"}, status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-@api_view(["GET", "PUT"])  # type: ignore[misc]
-@permission_classes([IsAuthenticated])  # type: ignore[misc]
+@api_view(["GET", "PUT"])
+@permission_classes([IsAuthenticated])
 def user_profile_view(request: HttpRequest) -> Response: # noqa: ARG001
     """
     User profile endpoint.
@@ -76,8 +92,7 @@ def user_profile_view(request: HttpRequest) -> Response: # noqa: ARG001
     # TODO: Implement user profile logic
     # GET: Return current user data
     # PUT: Update user profile
-    pass
-
+    return Response({"message": "Not implemented"}, status=status.HTTP_501_NOT_IMPLEMENTED)
 
 # TODO: Implement these endpoints:
 # - User logout

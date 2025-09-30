@@ -25,13 +25,13 @@ def user_data():
 @pytest.fixture
 def user(user_data):
     """Fixture creating a test user."""
-    return User.objects.create_user(**user_data)
+    return User.objects.create_user(**user_data)  # type: ignore[attr-defined]
 
 
 @pytest.mark.django_db
 def test_user_creation(user_data):
     """Test that a user can be created successfully."""
-    user = User.objects.create_user(**user_data)
+    user = User.objects.create_user(**user_data)  # type: ignore[attr-defined]
     assert user.email == "test@example.com"
     assert user.first_name == "John"
     assert user.last_name == "Doe"
@@ -89,7 +89,7 @@ def test_user_role_properties_admin(user):
 @pytest.mark.django_db
 def test_user_email_lowercase():
     """Test that email is automatically converted to lowercase."""
-    user = User.objects.create_user(
+    user = User.objects.create_user(  # type: ignore[attr-defined]
         email="TEST@EXAMPLE.COM",
         first_name="John",
         last_name="Doe",
@@ -104,6 +104,6 @@ def test_user_unique_email(user_data):
     """Test that email must be unique."""
     from django.db import IntegrityError
 
-    User.objects.create_user(**user_data)
+    User.objects.create_user(**user_data)  # type: ignore[attr-defined]
     with pytest.raises(IntegrityError):
-        User.objects.create_user(**user_data)
+        User.objects.create_user(**user_data)  # type: ignore[attr-defined]
