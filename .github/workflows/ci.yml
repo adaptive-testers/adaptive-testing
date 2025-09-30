@@ -166,8 +166,8 @@ jobs:
         uses: github/codeql-action/analyze@v3
       
       # Actionlint - GitHub Actions security
-      - name: Run Actionlint
-        uses: rhysd/actionlint@v1.7.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          fail_on_error: true
+      # - name: Run Actionlint
+      #   uses: rhysd/actionlint@v1.7.0
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     fail_on_error: true

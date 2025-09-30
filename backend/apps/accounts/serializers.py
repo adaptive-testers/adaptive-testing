@@ -3,7 +3,7 @@ from typing import Any, cast
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from .models import User, UserRole
+from .models import User
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):

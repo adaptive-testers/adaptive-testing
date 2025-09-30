@@ -42,7 +42,7 @@ class UserRegistrationView(generics.CreateAPIView):
     def create(self, request: Any) -> Response:
         # TODO: Implement user registration logic
         # 1. Validate serializer
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         # 2. Create user
@@ -61,8 +61,8 @@ class UserRegistrationView(generics.CreateAPIView):
         return Response(data, status=status.HTTP_201_CREATED)
 
 
-@api_view(["POST"])  # type: ignore[misc]
-@permission_classes([AllowAny])  # type: ignore[misc]
+@api_view(["POST"])
+@permission_classes([AllowAny])
 def user_login_view(request: HttpRequest) -> Response: # noqa: ARG001
     """
     User login endpoint.
@@ -77,11 +77,11 @@ def user_login_view(request: HttpRequest) -> Response: # noqa: ARG001
     # 1. Validate credentials
     # 2. Generate JWT tokens
     # 3. Return user data + tokens
-    pass
+    return Response({"message": "Not implemented"}, status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
-@api_view(["GET", "PUT"])  # type: ignore[misc]
-@permission_classes([IsAuthenticated])  # type: ignore[misc]
+@api_view(["GET", "PUT"])
+@permission_classes([IsAuthenticated])
 def user_profile_view(request: HttpRequest) -> Response: # noqa: ARG001
     """
     User profile endpoint.
@@ -92,7 +92,7 @@ def user_profile_view(request: HttpRequest) -> Response: # noqa: ARG001
     # TODO: Implement user profile logic
     # GET: Return current user data
     # PUT: Update user profile
-    pass
+    return Response({"message": "Not implemented"}, status=status.HTTP_501_NOT_IMPLEMENTED)
 
 # TODO: Implement these endpoints:
 # - User logout

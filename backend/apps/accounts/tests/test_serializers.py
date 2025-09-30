@@ -25,7 +25,7 @@ def valid_registration_data():
 @pytest.fixture
 def existing_user():
     """Fixture creating an existing user for duplicate email tests."""
-    return User.objects.create_user(
+    return User.objects.create_user(  # type: ignore[attr-defined]
         email="existing@example.com",
         first_name="Existing",
         last_name="User",
@@ -57,7 +57,7 @@ class TestUserRegistrationSerializer:
     def test_duplicate_email(self, valid_registration_data):
         """Test serializer rejects duplicate email."""
         # First create a user
-        User.objects.create_user(
+        User.objects.create_user(  # type: ignore[attr-defined]
             email="existing@example.com",
             first_name="Existing",
             last_name="User",
