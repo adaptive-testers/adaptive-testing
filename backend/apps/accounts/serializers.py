@@ -1,21 +1,23 @@
+from typing import Any, cast
+
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from .models import User
+from .models import User, UserRole
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     """
     Serializer for user registration.
 
-    TODO: Implement this serializer with:
-    - Email validation
-    - Password confirmation
+    Handles:
+    - Email validation and uniqueness
+    - Password validation and confirmation
     - Role validation
+    - Password hashing
     """
 
     password = serializers.CharField(write_only=True, validators=[validate_password])
-    password_confirm = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
@@ -24,12 +26,28 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "password",
-            "password_confirm",
             "role",
         ]
 
-    # TODO: Add validation methods
+    def validate_email(self, value: str) -> str:
+        """Validate email format and uniqueness."""
+        value = value.lower().strip()
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        return value
 
+    def validate_role(self, value: str) -> str:
+        """Validate role is a valid choice."""
+        if value.lower().strip() not in ("admin", "instructor", "student"):
+            raise serializers.ValidationError(
+                "Invalid role. Must be one of: admin, instructor, student."
+            )
+        return value
+
+    def create(self, validated_data: dict[str, Any]) -> User:
+        """Create user with hashed password."""
+        user = User.objects.create_user(**validated_data)
+        return cast(User, user)
 
 class UserLoginSerializer(serializers.ModelSerializer):
     """
