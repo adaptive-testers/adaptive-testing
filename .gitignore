@@ -10,11 +10,13 @@ __pycache__/
 migrations/**/__pycache__/
 media/
 static/
+staticfiles/
 .vscode/
 .idea/
 .tox/
 .coverage
 htmlcov/
+coverage.xml
 .pytest_cache/
 *.tar.gz
 *.zip
@@ -22,13 +24,15 @@ celerybeat-schedule*
 celeryd.pid
 local_settings.py
 
+# Ruff
+.ruff_cache/
+
 # React
 node_modules/
 build/
 dist/
 .parcel-cache/
 .eslintcache
-.DS_Store
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -38,6 +42,15 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 coverage/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
 # General ignores
 .gitkeep
