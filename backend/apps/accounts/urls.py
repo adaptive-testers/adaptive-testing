@@ -1,14 +1,16 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from . import views
 
 app_name = "accounts"
 
 urlpatterns = [
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("register/", views.UserRegistrationView.as_view(), name="register"),
 ]
 
-# TODO: Add these endpoints for implementing authentication
+# TODO: Add these endpoints for implementing authentication this is what I have in urls.py don't change anything but you can add
 
 # Traditional Auth Endpoints
 # path('register/', views.UserRegistrationView.as_view(), name='register'),
