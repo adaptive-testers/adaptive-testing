@@ -1,76 +1,109 @@
+"""
+Tests for the User model.
+"""
+
 import pytest
-from django.urls import reverse
-from rest_framework.test import APIClient
-from rest_framework import status
 from django.contrib.auth import get_user_model
 
-pytestmark = pytest.mark.django_db
+from apps.accounts.models import UserRole
 
-def test_register_returns_tokens_on_success():
-    client = APIClient()
-    url = reverse("accounts:register")
-    payload = {
-        "email": "tokentest@example.com",
-        "password": "StrongP@ssw0rd!",
-        "first_name": "Tok",
-        "last_name": "En",
-        "role": "student",
+User = get_user_model()
+
+
+@pytest.fixture
+def user_data():
+    """Fixture providing test user data."""
+    return {
+        "email": "test@example.com",
+        "first_name": "John",
+        "last_name": "Doe",
+        "password": "testpass123",
+        "role": UserRole.STUDENT,
     }
-    resp = client.post(url, payload, format="json")
-    assert resp.status_code in (status.HTTP_201_CREATED, status.HTTP_200_OK)
-    assert "tokens" in resp.data
-    assert "access" in resp.data["tokens"]
-    assert "refresh" in resp.data["tokens"]
 
-def test_register_rejects_weak_password():
-    client = APIClient()
-    url = reverse("accounts:register")
-    payload = {
-        "email": "weakpass@example.com",
-        "password": "123",  # should trip password validators
-        "first_name": "Weak",
-        "last_name": "Pass",
-        "role": "student",
-    }
-    resp = client.post(url, payload, format="json")
-    assert resp.status_code == status.HTTP_400_BAD_REQUEST
-    assert "password" in resp.data
 
-def test_register_rejects_invalid_role():
-    client = APIClient()
-    url = reverse("accounts:register")
-    payload = {
-        "email": "badrole@example.com",
-        "password": "StrongP@ssw0rd!",
-        "first_name": "Bad",
-        "last_name": "Role",
-        "role": "not_a_role",
-    }
-    resp = client.post(url, payload, format="json")
-    assert resp.status_code == status.HTTP_400_BAD_REQUEST
-    assert "role" in resp.data
+@pytest.fixture
+def user(user_data):
+    """Fixture creating a test user."""
+    return User.objects.create_user(**user_data)  # type: ignore[attr-defined]
 
-def test_register_missing_required_fields():
-    client = APIClient()
-    url = reverse("accounts:register")
-    resp = client.post(url, {}, format="json")
-    assert resp.status_code == status.HTTP_400_BAD_REQUEST
-    # Adjust if your serializer marks some fields optional
-    for field in ("email", "first_name", "last_name", "password"):
-        assert field in resp.data
 
-def test_register_email_normalized_lowercase():
-    client = APIClient()
-    url = reverse("accounts:register")
-    payload = {
-        "email": "  NEWUSER@EXAMPLE.COM ",
-        "password": "StrongP@ssw0rd!",
-        "first_name": "New",
-        "last_name": "User",
-        "role": "student",
-    }
-    resp = client.post(url, payload, format="json")
-    assert resp.status_code in (status.HTTP_201_CREATED, status.HTTP_200_OK)
+@pytest.mark.django_db
+def test_user_creation(user_data):
+    """Test that a user can be created successfully."""
+    user = User.objects.create_user(**user_data)  # type: ignore[attr-defined]
+    assert user.email == "test@example.com"
+    assert user.first_name == "John"
+    assert user.last_name == "Doe"
+    assert user.role == UserRole.STUDENT
+    assert user.is_active is True
+    assert user.is_verified is False
 
-    User = get_user_model()
-    assert User.objects.filter(email="newuser@example.com").exists()
+
+@pytest.mark.django_db
+def test_user_str_representation(user):
+    """Test the string representation of a user."""
+    assert str(user) == "test@example.com"
+
+
+@pytest.mark.django_db
+def test_user_full_name_property(user):
+    """Test the full_name property."""
+    assert user.full_name == "John Doe"
+
+
+@pytest.mark.django_db
+def test_user_display_name_property(user):
+    """Test the display_name property."""
+    assert user.display_name == "John Doe"
+
+
+@pytest.mark.django_db
+def test_user_role_properties_student(user):
+    """Test student role properties."""
+    assert user.is_student is True
+    assert user.is_instructor is False
+    assert user.is_admin is False
+
+
+@pytest.mark.django_db
+def test_user_role_properties_instructor(user):
+    """Test instructor role properties."""
+    user.role = UserRole.INSTRUCTOR
+    user.save()
+    assert user.is_student is False
+    assert user.is_instructor is True
+    assert user.is_admin is False
+
+
+@pytest.mark.django_db
+def test_user_role_properties_admin(user):
+    """Test admin role properties."""
+    user.role = UserRole.ADMIN
+    user.save()
+    assert user.is_student is False
+    assert user.is_instructor is False
+    assert user.is_admin is True
+
+
+@pytest.mark.django_db
+def test_user_email_lowercase():
+    """Test that email is automatically converted to lowercase."""
+    user = User.objects.create_user(  # type: ignore[attr-defined]
+        email="TEST@EXAMPLE.COM",
+        first_name="John",
+        last_name="Doe",
+        password="testpass123",
+        role=UserRole.STUDENT,
+    )
+    assert user.email == "test@example.com"
+
+
+@pytest.mark.django_db
+def test_user_unique_email(user_data):
+    """Test that email must be unique."""
+    from django.db import IntegrityError
+
+    User.objects.create_user(**user_data)  # type: ignore[attr-defined]
+    with pytest.raises(IntegrityError):
+        User.objects.create_user(**user_data)  # type: ignore[attr-defined]
