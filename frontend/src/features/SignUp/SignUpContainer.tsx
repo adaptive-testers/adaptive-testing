@@ -9,7 +9,7 @@ import googleLogo from "../../assets/googleLogo.png";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
-import axios from "../../api/axios";
+import { publicApi } from "../../api/axios";
 
 type FormFields = {
     fullName: string;
@@ -17,7 +17,7 @@ type FormFields = {
     userPassword: string;
 };
 
-const REIGISTER_URL = "/api/auth/register/";
+const REGISTER_URL = "/api/auth/register/";
 
 export default function SignUpContainer() {
     const {register, handleSubmit, setError, formState: { errors, isSubmitting }} = useForm<FormFields>();
@@ -28,7 +28,7 @@ export default function SignUpContainer() {
 
     const onSubmit: SubmitHandler<FormFields> = async (data) => {
         try {
-            const response = await axios.post(REIGISTER_URL, data);
+            const response = await publicApi.post(REGISTER_URL, data);
             console.log("Account created successfully:", response.data);
 
         }
