@@ -10,6 +10,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { publicApi } from "../../api/axios";
+import { useAuth } from "../../context/AuthContext";
 
 type FormFields = {
     firstName: string;
@@ -21,6 +22,7 @@ type FormFields = {
 
 export default function SignUpContainer() {
     const {register, handleSubmit, setError, formState: { errors, isSubmitting }} = useForm<FormFields>();
+    const { setAccessToken } = useAuth();
 
     const [showPassword, setShowPassword] = useState(false);
 
@@ -42,9 +44,25 @@ export default function SignUpContainer() {
 
     const onSubmit: SubmitHandler<FormFields> = async (data) => {
         try {
-            const response = await publicApi.post("/auth/register", data);
-            console.log("Account created successfully:", response.data);
+            const registrationData = {
+                email: data.userEmail,
+                first_name: data.firstName,
+                last_name: data.lastName,
+                password: data.userPassword,
+                role: "student"
+            };
 
+            const response = await publicApi.post("/auth/register", registrationData);
+            
+            if (response.data.tokens?.access) {
+                setAccessToken(response.data.tokens.access);
+            }
+
+            console.log("Account created successfully:", response.data);
+            
+            // TODO: Redirect to dashboard or show success message
+            console.log("Account created successfully:", response.data);
+            
         }
         catch (error){
             setError("root", {
