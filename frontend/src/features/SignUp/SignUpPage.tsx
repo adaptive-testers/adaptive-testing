@@ -72,7 +72,7 @@ export default function SignUpContainer() {
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
                     <div className="flex gap-3">
                         <div className="relative flex-1">
-                            <label htmlFor="firstName-input" className="text-[#8e8e8e] geist-font text-sm font-[500]">First Name</label>
+                            <label htmlFor="firstName-input" className="text-[#8e8e8e] geist-font text-sm font-[475]">First Name</label>
                             <input {...register("firstName", { required: "First name is required" })} id="firstName-input" type="text" className="peer text-white text-sm pl-10 pr-2 h-9 w-full bg-neutral-950 border-[#282828] border-[2px] rounded-lg focus:border-[rgba(174,58,58,0.4)] focus:outline-none" />
                             <IoPersonOutline className="absolute left-[10px] top-[72%] -translate-y-1/2 text-[#8e8e8e] peer-focus:text-white text-sm pointer-events-none" />
                             {errors.firstName && (
@@ -82,7 +82,7 @@ export default function SignUpContainer() {
                             )}
                         </div>
                         <div className="relative flex-1">
-                            <label htmlFor="lastName-input" className="text-[#8e8e8e] geist-font text-sm font-[500]">Last Name</label>
+                            <label htmlFor="lastName-input" className="text-[#8e8e8e] geist-font text-sm font-[475]">Last Name</label>
                             <input {...register("lastName", { required: "Last name is required" })} id="lastName-input" type="text" className="peer text-white text-sm pl-3 pr-2 h-9 w-full bg-neutral-950 border-[#282828] border-[2px] rounded-lg focus:border-[rgba(174,58,58,0.4)] focus:outline-none geist-font" />
                             {errors.lastName && (
                                 <p className="absolute left-0 bottom-[-18px] tracking-wider geist-font text-red-500 text-[10px]">
@@ -94,7 +94,7 @@ export default function SignUpContainer() {
 
 
                     <div className="relative">
-                        <label htmlFor="email-input" className="text-[#8e8e8e] geist-font text-sm font-[500]">Email</label>
+                        <label htmlFor="email-input" className="text-[#8e8e8e] geist-font text-sm font-[475]">Email</label>
                         <input {...register("userEmail", { required: "Email is required" })} id="email-input" type="email" className="peer text-white text-sm pl-10 pr-2 h-9 w-full bg-neutral-950 border-[#282828] border-[2px] rounded-lg focus:border-[rgba(174,58,58,0.4)] focus:outline-none" />
                         <MdOutlineMailOutline className="absolute left-[10px] top-[72%] transform -translate-y-1/2 text-[#8e8e8e] peer-focus:text-white text-sm pointer-events-none" />
                         {errors.userEmail && (
@@ -105,7 +105,7 @@ export default function SignUpContainer() {
                     </div>
 
                     <div className="relative">
-                        <label htmlFor="password-input" className="text-[#8e8e8e] geist-font text-sm font-[500]">Password</label>
+                        <label htmlFor="password-input" className="text-[#8e8e8e] geist-font text-sm font-[475]">Password</label>
                         <input
                             id="password-input"
                             type={showPassword ? "text" : "password"}
