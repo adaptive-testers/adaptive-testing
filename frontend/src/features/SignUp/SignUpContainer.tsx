@@ -17,7 +17,6 @@ type FormFields = {
     userPassword: string;
 };
 
-const REGISTER_URL = "/api/auth/register/";
 
 export default function SignUpContainer() {
     const {register, handleSubmit, setError, formState: { errors, isSubmitting }} = useForm<FormFields>();
@@ -28,7 +27,7 @@ export default function SignUpContainer() {
 
     const onSubmit: SubmitHandler<FormFields> = async (data) => {
         try {
-            const response = await publicApi.post(REGISTER_URL, data);
+            const response = await publicApi.post("/auth/register", data);
             console.log("Account created successfully:", response.data);
 
         }
