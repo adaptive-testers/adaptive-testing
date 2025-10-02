@@ -11,7 +11,7 @@ urlpatterns = [
     path("register/", views.UserRegistrationView.as_view(), name="register"),
 ]
 
-# TODO: Add these endpoints for implementing authentication this is what I have in urls.py don't change anything but you can add
+# TODO: Add these endpoints for implementing authentication
 
 # Traditional Auth Endpoints
 # path('register/', views.UserRegistrationView.as_view(), name='register'),
