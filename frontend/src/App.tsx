@@ -1,7 +1,5 @@
-import { useState } from 'react'
-import './App.css'
 import SiteHeader from './components/SiteHeader'
-import SignUpContainer from './features/SignUp/SignUpContainer'
+import SignUpContainer from './features/SignUp/SignUpPage'
 import SiteFooter from './components/SiteFooter'
 
 function App() {
