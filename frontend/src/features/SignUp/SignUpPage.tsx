@@ -23,6 +23,20 @@ export default function SignUpContainer() {
 
     const [showPassword, setShowPassword] = useState(false);
 
+    // Password validation function
+    const validatePassword = (password: string) => {
+        const hasNumber = /\d/.test(password);
+        const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+        
+        if (!hasNumber) {
+            return "Password must contain at least one number";
+        }
+        if (!hasSpecialChar) {
+            return "Password must contain at least one special character";
+        }
+        return true;
+    };
+
     const handlePasswordToggle = () => setShowPassword((prev) => !prev);
 
     const onSubmit: SubmitHandler<FormFields> = async (data) => {
@@ -83,7 +97,11 @@ export default function SignUpContainer() {
                         <input
                             id="password-input"
                             type={showPassword ? "text" : "password"}
-                            {...register("userPassword", { required: "Password is required", minLength: { value: 8, message: "Minimum length is 8" } })}
+                            {...register("userPassword", { 
+                                required: "Password is required", 
+                                minLength: { value: 8, message: "Minimum length is 8" },
+                                validate: validatePassword
+                            })}
                             className="peer text-white text-sm pl-10 pr-10 h-9 w-full bg-neutral-950 border-[#282828] border-[2px] rounded-lg focus:border-[rgba(174,58,58,0.4)] focus:outline-none"
                         />
                         <TbLockPassword className="absolute left-[10px] top-[70%] -translate-y-1/2 text-[#8e8e8e] peer-focus:text-white text-sm pointer-events-none" />
