@@ -52,7 +52,7 @@ export default function SignUpContainer() {
                 role: "student"
             };
 
-            const response = await publicApi.post("/auth/register", registrationData);
+            const response = await publicApi.post("/auth/register/", registrationData);
             
             if (response.data.tokens?.access) {
                 setAccessToken(response.data.tokens.access);
