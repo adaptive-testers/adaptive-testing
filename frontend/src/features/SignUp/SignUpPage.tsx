@@ -60,9 +60,6 @@ export default function SignUpContainer() {
 
             console.log("Account created successfully:", response.data);
             
-            // TODO: Redirect to dashboard or show success message
-            console.log("Account created successfully:", response.data);
-            
         }
         catch (error){
             setError("root", {
