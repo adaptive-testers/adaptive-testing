@@ -2,8 +2,9 @@
 Tests for the User model.
 """
 
-import pytest
 from typing import cast
+
+import pytest
 from django.contrib.auth import get_user_model
 
 from apps.accounts.models import User, UserRole
