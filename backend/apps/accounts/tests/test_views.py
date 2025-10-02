@@ -1,8 +1,14 @@
 import pytest
+from typing import cast
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
+
+from apps.accounts.models import User
+
+# Type alias for the User model
+UserModel = cast(type[User], get_user_model())
 
 pytestmark = pytest.mark.django_db
 
@@ -20,13 +26,11 @@ def test_register_success_creates_user():
     resp = client.post(url, payload, format="json")
     assert resp.status_code in (status.HTTP_201_CREATED, status.HTTP_200_OK)
 
-    User = get_user_model()
-    assert User.objects.filter(email="newuser@example.com").exists()
+    assert UserModel.objects.filter(email="newuser@example.com").exists()
 
 
 def test_register_duplicate_email_returns_400():
-    User = get_user_model()
-    User.objects.create_user(
+    UserModel.objects.create_user(
         email="taken@example.com",
         password="abc12345",
         first_name="T",
@@ -117,8 +121,7 @@ def test_register_email_normalized_lowercase():
     resp = client.post(url, payload, format="json")
     assert resp.status_code in (status.HTTP_201_CREATED, status.HTTP_200_OK)
 
-    User = get_user_model()
-    assert User.objects.filter(email="newuser@example.com").exists()
+    assert UserModel.objects.filter(email="newuser@example.com").exists()
 
 
 def test_register_invalid_email_format():

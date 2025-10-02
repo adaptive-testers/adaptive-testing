@@ -1,10 +1,13 @@
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
 
 from .managers import UserManager
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import UserManager
 
 
 class UserRole(models.TextChoices):
