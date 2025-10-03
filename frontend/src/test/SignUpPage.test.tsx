@@ -1,7 +1,9 @@
-import { describe, it, expect } from 'vitest'
 import { screen } from '@testing-library/react'
-import { render } from './utils'
+import { describe, it, expect } from 'vitest'
+
 import SignUpPage from '../features/SignUp/SignUpPage'
+
+import { render } from './utils'
 
 describe("SignUpPage", () => {
 

@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
+
 import { useAuth } from '../context/AuthContext';
+
 import { initializeAuthInterceptors } from './interceptors';
 
 // Custom hook to initialize auth interceptors

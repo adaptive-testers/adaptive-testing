@@ -1,5 +1,6 @@
-import SignUpPage from './features/SignUp/SignUpPage'
 import { AuthProvider } from './context/AuthContext'
+import SignUpPage from './features/SignUp/SignUpPage'
+
 
 function App() {
   return (
