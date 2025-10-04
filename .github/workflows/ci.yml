@@ -49,6 +49,14 @@ jobs:
           api_key: ${{ secrets.NEON_API_KEY }}
           expires_at: ${{ env.EXPIRES_AT }}
       
+      - name: Debug Neon action outputs
+        run: |
+          echo "db_url: ${{ steps.create_neon_branch.outputs.db_url != '' }}"
+          echo "db_url_pooled: ${{ steps.create_neon_branch.outputs.db_url_pooled != '' }}"
+          echo "branch_id: ${{ steps.create_neon_branch.outputs.branch_id != '' }}"
+          echo "password: ${{ steps.create_neon_branch.outputs.password != '' }}"
+          echo "created: ${{ steps.create_neon_branch.outputs.created != '' }}"
+      
 
   delete_neon_branch:
     name: Delete Neon Branch
@@ -81,12 +89,9 @@ jobs:
       DATABASE_URL: ${{ needs.create_neon_branch.outputs.db_url_pooled }}
     steps:
       - uses: actions/checkout@v4
-      - name: Debug job outputs
+      - name: Debug DATABASE_URL
         run: |
-          echo "create_neon_branch result: ${{ needs.create_neon_branch.result }}"
-          echo "db_url exists: ${{ needs.create_neon_branch.outputs.db_url != '' }}"
-          echo "db_url_pooled exists: ${{ needs.create_neon_branch.outputs.db_url_pooled != '' }}"
-          echo "DATABASE_URL from env: ${{ env.DATABASE_URL != '' }}"
+          echo "DATABASE_URL exists: ${{ env.DATABASE_URL != '' }}"
           echo "DATABASE_URL length: ${#DATABASE_URL}"
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
