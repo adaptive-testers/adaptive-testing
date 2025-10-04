@@ -81,6 +81,8 @@ jobs:
       DATABASE_URL: ${{ needs.create_neon_branch.outputs.db_url_pooled }}
     steps:
       - uses: actions/checkout@v4
+      - name: Debug Database URL
+        run: echo "$DATABASE_URL != ''"
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
