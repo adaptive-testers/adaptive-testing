@@ -81,6 +81,13 @@ jobs:
       DATABASE_URL: ${{ needs.create_neon_branch.outputs.db_url_pooled }}
     steps:
       - uses: actions/checkout@v4
+      - name: Debug job outputs
+        run: |
+          echo "create_neon_branch result: ${{ needs.create_neon_branch.result }}"
+          echo "db_url exists: ${{ needs.create_neon_branch.outputs.db_url != '' }}"
+          echo "db_url_pooled exists: ${{ needs.create_neon_branch.outputs.db_url_pooled != '' }}"
+          echo "DATABASE_URL from env: ${{ env.DATABASE_URL != '' }}"
+          echo "DATABASE_URL length: ${#DATABASE_URL}"
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
