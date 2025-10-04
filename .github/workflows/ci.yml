@@ -27,7 +27,7 @@ jobs:
     name: Create Neon Branch
     outputs:
       db_url: ${{ steps.create_neon_branch.outputs.db_url }}
-      db_url_with_pooler: ${{ steps.create_neon_branch.outputs.db_url_with_pooler }}
+      db_url_pooled: ${{ steps.create_neon_branch.outputs.db_url_pooled }}
     needs: setup
     if: |
       github.event_name == 'pull_request' && (
@@ -49,11 +49,6 @@ jobs:
           api_key: ${{ secrets.NEON_API_KEY }}
           expires_at: ${{ env.EXPIRES_AT }}
       
-      - name: Check Neon outputs
-        run: |
-          echo "db_url exists: ${{ steps.create_neon_branch.outputs.db_url != '' }}"
-          echo "db_url_with_pooler exists: ${{ steps.create_neon_branch.outputs.db_url_with_pooler != '' }}"
-          echo "branch_id exists: ${{ steps.create_neon_branch.outputs.branch_id != '' }}"
 
   delete_neon_branch:
     name: Delete Neon Branch
@@ -83,7 +78,7 @@ jobs:
       SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY || 'ci-secret-key-for-testing-only' }}
       DEBUG: false
       CORS_ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
-      DATABASE_URL: ${{ needs.create_neon_branch.outputs.db_url_with_pooler }}
+      DATABASE_URL: ${{ needs.create_neon_branch.outputs.db_url_pooled }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
