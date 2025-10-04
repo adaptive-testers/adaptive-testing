@@ -73,7 +73,7 @@ jobs:
 
   backend:
     runs-on: ubuntu-latest
-    needs: create_neon_branch
+    needs: [setup, create_neon_branch]
     if: needs.create_neon_branch.result == 'success' || needs.create_neon_branch.result == 'skipped'
     strategy:
       matrix:
