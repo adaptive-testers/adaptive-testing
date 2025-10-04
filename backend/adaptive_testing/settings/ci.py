@@ -6,24 +6,20 @@ This module contains settings specifically for CI/CD environments.
 
 from datetime import timedelta
 
+# Database configuration
+# Always use Neon database for CI - fail if not available
+import dj_database_url
 from decouple import config
 
 from .base import *  # noqa: F403, F401
 
-# Database configuration
-# Use Neon database if DATABASE_URL is set, otherwise use a simple file-based SQLite
-if config("DATABASE_URL", default=None):
-    import dj_database_url
-    DATABASES = {
-        "default": dj_database_url.parse(config("DATABASE_URL"))
-    }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": "/tmp/test_ci.db",
-        }
-    }
+DATABASE_URL = config("DATABASE_URL", default=None)
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is required for CI environment.")
+
+DATABASES = {
+    "default": dj_database_url.parse(DATABASE_URL)
+}
 
 # Disable password hashing for faster CI
 PASSWORD_HASHERS = [

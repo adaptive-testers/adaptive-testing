@@ -27,7 +27,7 @@ jobs:
     name: Create Neon Branch
     outputs:
       db_url: ${{ steps.create_neon_branch.outputs.db_url }}
-      db_url_with_pooler: ${{ steps.create_neon_branch.outputs.db_url_with_pooler }}
+      db_url_pooled: ${{ steps.create_neon_branch.outputs.db_url_pooled }}
     needs: setup
     if: |
       github.event_name == 'pull_request' && (
@@ -39,14 +39,16 @@ jobs:
       - name: Get branch expiration date (2 weeks from now)
         id: get_expiration_date
         run: echo "EXPIRES_AT=$(date -u --date '+14 days' +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+      
       - name: Create Neon Branch
         id: create_neon_branch
         uses: neondatabase/create-branch-action@v6
         with: 
-            project_id: ${{ vars.NEON_PROJECT_ID }}
-            branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
-            api_key: ${{ secrets.NEON_API_KEY }}
-            expires_at: ${{ env.EXPIRES_AT }}
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+          expires_at: ${{ env.EXPIRES_AT }}
+      
 
   delete_neon_branch:
     name: Delete Neon Branch
@@ -64,7 +66,7 @@ jobs:
   backend:
     runs-on: ubuntu-latest
     needs: create_neon_branch
-    if: always() && (needs.create_neon_branch.result == 'success' || needs.create_neon_branch.result == 'skipped')
+    if: needs.create_neon_branch.result == 'success' || needs.create_neon_branch.result == 'skipped'
     strategy:
       matrix:
         python-version: [3.11, 3.13]
@@ -76,9 +78,16 @@ jobs:
       SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY || 'ci-secret-key-for-testing-only' }}
       DEBUG: false
       CORS_ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
-      DATABASE_URL: ${{ needs.create_neon_branch.outputs.db_url_with_pooler || '' }}
+      DATABASE_URL: ${{ needs.create_neon_branch.outputs.db_url_pooled }}
     steps:
       - uses: actions/checkout@v4
+      - name: Debug job outputs
+        run: |
+          echo "create_neon_branch result: ${{ needs.create_neon_branch.result }}"
+          echo "db_url exists: ${{ needs.create_neon_branch.outputs.db_url != '' }}"
+          echo "db_url_pooled exists: ${{ needs.create_neon_branch.outputs.db_url_pooled != '' }}"
+          echo "DATABASE_URL from env: ${{ env.DATABASE_URL != '' }}"
+          echo "DATABASE_URL length: ${#DATABASE_URL}"
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
