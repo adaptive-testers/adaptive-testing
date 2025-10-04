@@ -6,16 +6,16 @@ This module contains settings specifically for CI/CD environments.
 
 from datetime import timedelta
 
+# Database configuration
+# Always use Neon database for CI - fail if not available
+import dj_database_url
 from decouple import config
 
 from .base import *  # noqa: F403, F401
 
-# Database configuration
-# Always use Neon database for CI - fail if not available
-import dj_database_url
 DATABASE_URL = config("DATABASE_URL", default=None)
 if not DATABASE_URL:
-    raise ValueError("DATABASE_URL is required for CI environment. Neon branch creation may have failed.")
+    raise ValueError("DATABASE_URL environment variable is required for CI environment.")
 
 DATABASES = {
     "default": dj_database_url.parse(DATABASE_URL)
