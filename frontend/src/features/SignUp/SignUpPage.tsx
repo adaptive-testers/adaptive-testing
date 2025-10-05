@@ -1,23 +1,22 @@
-import { MdOutlineMailOutline } from "react-icons/md";
-import { IoPersonOutline } from "react-icons/io5";
-import { TbLockPassword } from "react-icons/tb";
-import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
-import microsoftLogo from "../../assets/microsoftLogo.png";
-import googleLogo from "../../assets/googleLogo.png";
-
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
+import { IoPersonOutline } from "react-icons/io5";
+import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
+import { MdOutlineMailOutline } from "react-icons/md";
+import { TbLockPassword } from "react-icons/tb";
+
 import { publicApi } from "../../api/axios";
+import googleLogo from "../../assets/googleLogo.png";
+import microsoftLogo from "../../assets/microsoftLogo.png";
 import { useAuth } from "../../context/AuthContext";
 
-type FormFields = {
+interface FormFields {
     firstName: string;
     lastName: string;
     userEmail: string;
     userPassword: string;
-};
+}
 
 
 export default function SignUpContainer() {
@@ -29,7 +28,7 @@ export default function SignUpContainer() {
     // Password validation function
     const validatePassword = (password: string) => {
         const hasNumber = /\d/.test(password);
-        const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+        const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
         
         if (!hasNumber) {
             return "Password must contain at least one number";
