@@ -66,6 +66,21 @@ class UserLoginSerializer(serializers.ModelSerializer):
 
     # TODO: Add validation methods
 
+    def validate(self, data: dict[str, Any]) -> dict[str, Any]:
+        
+        try: 
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Invalid email or password.")
+
+        if not user.check_password(password):
+            raise serializers.ValidationError("Invalid email or password.")
+
+        if not user.is_active:
+            raise serializers.ValidationError("User account is inactive.")
+
+data["user"] = user
+return data
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """
@@ -89,3 +104,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ["email", "created_at"]
 
     # TODO: Add validation methods
+
+    def validate_role(self, value: str) -> str:
+        """Ensure role is valid if updated."""
+        if value.lower().strip() not in ("admin", "instructor", "student"):
+            raise serializers.validationError(
+                        "Invalid role.")
+        return value
