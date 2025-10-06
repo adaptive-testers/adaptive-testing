@@ -1,19 +1,16 @@
 from typing import Any
 
-from django.contrib.auth import authenticate  # noqa: F401
+from django.contrib.auth import authenticate
 from django.http import HttpRequest
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
-from .serializers import (  # noqa: F401
-    UserLoginSerializer,
-    UserProfileSerializer,
-    UserRegistrationSerializer,
-)
+from .serializers import UserRegistrationSerializer
 
 # TODO: Create serializers.py file with these serializers:
 # - UserRegistrationSerializer DONE
@@ -39,50 +36,84 @@ class UserRegistrationView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
     permission_classes = [AllowAny]
 
-    def create(self, request: Any) -> Response:
-        # TODO: Implement user registration logic
-        # 1. Validate serializer
+    # match DRF CreateModelMixin.create signature
+    def create(self, request: Any, *_: Any, **__: Any) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # 2. Create user
         user = serializer.save()
 
-        # 3. Generate JWT tokens
         refresh = RefreshToken.for_user(user)
-
-        # 4. Return user data + tokens
         data = serializer.data
         data["tokens"] = {
             "refresh": str(refresh),
             "access": str(refresh.access_token),
         }
-
         return Response(data, status=status.HTTP_201_CREATED)
 
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def user_login_view(request: HttpRequest) -> Response: # noqa: ARG001
+def user_login_view(request: Request) -> Response:
     """
     User login endpoint.
 
     POST /api/auth/login/
-    Body: {
+    Body:
+    {
         "email": "user@example.com",
         "password": "securepassword"
     }
+
+    Response (200):
+    {
+        "email": "...",
+        "first_name": "...",
+        "last_name": "...",
+        "role": "...",
+        "tokens": {
+            "refresh": "...",
+            "access": "..."
+        }
+    }
     """
-    # TODO: Implement user login logic
-    # 1. Validate credentials
-    # 2. Generate JWT tokens
-    # 3. Return user data + tokens
-    return Response({"message": "Not implemented"}, status=status.HTTP_501_NOT_IMPLEMENTED)
+    email_raw = request.data.get("email")
+    password = request.data.get("password")
+
+    errors: dict[str, list[str]] = {}
+    if not email_raw:
+        errors.setdefault("email", []).append("This field is required.")
+    if not password:
+        errors.setdefault("password", []).append("This field is required.")
+    if errors:
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+    email = str(email_raw).strip().lower()
+
+    user = authenticate(request, username=email, password=password)
+    if not user:
+        return Response({"detail": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
+
+    if not user.is_active:
+        return Response({"detail": "User inactive."}, status=status.HTTP_403_FORBIDDEN)
+
+    refresh = RefreshToken.for_user(user)
+    data = {
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "role": user.role,
+        "tokens": {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        },
+    }
+    return Response(data, status=status.HTTP_200_OK)
 
 
 @api_view(["GET", "PUT"])
 @permission_classes([IsAuthenticated])
-def user_profile_view(request: HttpRequest) -> Response: # noqa: ARG001
+def user_profile_view(_request: HttpRequest) -> Response:
     """
     User profile endpoint.
 
