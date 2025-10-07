@@ -106,6 +106,9 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           echo "DATABASE_URL=${{ steps.create_neon_branch_backend.outputs.db_url_pooled }}" >> "$GITHUB_ENV"
+      - name: Export per-run test DB suffix
+        run: |
+          echo "DJANGO_TEST_DB_SUFFIX=${{ github.run_id }}_${{ github.run_attempt }}" >> "$GITHUB_ENV"
       - name: Debug DATABASE_URL
         run: |
           echo "DATABASE_URL exists: ${{ env.DATABASE_URL != '' }}"

@@ -5,6 +5,7 @@ This module contains settings specifically for CI/CD environments.
 """
 
 from datetime import timedelta
+import os
 
 # Database configuration
 # Always use Neon database for CI - fail if not available
@@ -20,6 +21,15 @@ if not DATABASE_URL:
 DATABASES = {
     "default": dj_database_url.parse(DATABASE_URL)
 }
+
+# Use a unique test database per CI run when provided, to avoid clashes on reruns.
+_test_db_suffix = os.getenv("DJANGO_TEST_DB_SUFFIX")
+if _test_db_suffix:
+    _base_name = DATABASES["default"].get("NAME")
+    if _base_name:
+        DATABASES["default"]["TEST"] = {
+            "NAME": f"test_{_base_name}_{_test_db_suffix}",
+        }
 
 # Disable password hashing for faster CI
 PASSWORD_HASHERS = [
