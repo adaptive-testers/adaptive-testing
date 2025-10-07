@@ -2,12 +2,16 @@
 Tests for the UserRegistrationSerializer.
 """
 
+from typing import cast
+
 import pytest
 from django.contrib.auth import get_user_model
 
+from apps.accounts.models import User
 from apps.accounts.serializers import UserRegistrationSerializer
 
-User = get_user_model()
+# Type alias for the User model
+UserModel = cast(type[User], get_user_model())
 
 
 @pytest.fixture
@@ -25,7 +29,7 @@ def valid_registration_data():
 @pytest.fixture
 def existing_user():
     """Fixture creating an existing user for duplicate email tests."""
-    return User.objects.create_user(  # type: ignore[attr-defined]
+    return UserModel.objects.create_user(
         email="existing@example.com",
         first_name="Existing",
         last_name="User",
@@ -57,7 +61,7 @@ class TestUserRegistrationSerializer:
     def test_duplicate_email(self, valid_registration_data):
         """Test serializer rejects duplicate email."""
         # First create a user
-        User.objects.create_user(  # type: ignore[attr-defined]
+        UserModel.objects.create_user(
             email="existing@example.com",
             first_name="Existing",
             last_name="User",
