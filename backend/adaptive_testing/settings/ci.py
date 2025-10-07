@@ -4,8 +4,8 @@ CI settings for adaptive_testing project.
 This module contains settings specifically for CI/CD environments.
 """
 
-from datetime import timedelta
 import os
+from datetime import timedelta
 
 # Database configuration
 # Always use Neon database for CI - fail if not available
