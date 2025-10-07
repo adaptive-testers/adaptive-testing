@@ -20,7 +20,7 @@ djangorestframework-simplejwt = "^5.5.1"
 dj-database-url = "^3.0.1"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.1.0"
+ruff = "^0.13.3"
 mypy = "^1.5.0"
 pre-commit = "^3.4.0"
 django-stubs = "^5.2.5"
