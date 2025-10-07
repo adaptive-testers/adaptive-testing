@@ -1,109 +1,21 @@
 version: 2
 updates:
-  # Backend production dependencies
   - package-ecosystem: "pip"
     directory: "/backend"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "09:00"
     allow:
-      - dependency-type: "production"
-    open-pull-requests-limit: 3
-    groups:
-      backend-prod:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-    reviewers:
-      - "talberry"
-    assignees:
-      - "talberry"
-
-  # Backend development dependencies
-  - package-ecosystem: "pip"
-    directory: "/backend"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    allow:
-      - dependency-type: "development"
-    open-pull-requests-limit: 2
-    groups:
-      backend-dev:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-    reviewers:
-      - "talberry"
-    assignees:
-      - "talberry"
-
-  # Frontend production dependencies
+      - dependency-type: "all"
+    open-pull-requests-limit: 10
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "09:00"
     allow:
-      - dependency-type: "production"
-    open-pull-requests-limit: 3
-    groups:
-      frontend-prod:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-    reviewers:
-      - "talberry"
-    assignees:
-      - "talberry"
-
-  # Frontend development dependencies
-  - package-ecosystem: "npm"
-    directory: "/frontend"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    allow:
-      - dependency-type: "development"
-    open-pull-requests-limit: 2
-    groups:
-      frontend-dev:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-    reviewers:
-      - "talberry"
-    assignees:
-      - "talberry"
-
-  # GitHub Actions
+      - dependency-type: "all"
+    open-pull-requests-limit: 10
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 2
-    groups:
-      github-actions:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-    reviewers:
-      - "talberry"
-    assignees:
-      - "talberry"
+    open-pull-requests-limit: 10

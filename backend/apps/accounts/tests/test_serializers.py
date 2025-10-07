@@ -13,8 +13,6 @@ from apps.accounts.serializers import UserRegistrationSerializer
 # Type alias for the User model
 UserModel = cast(type[User], get_user_model())
 
-pytestmark = pytest.mark.django_db
-
 
 @pytest.fixture
 def valid_registration_data():
@@ -43,6 +41,7 @@ def existing_user():
 class TestUserRegistrationSerializer:
     """Test cases for UserRegistrationSerializer."""
 
+    @pytest.mark.django_db
     def test_valid_registration_data(self, valid_registration_data):
         """Test serializer with valid data creates user successfully."""
         serializer = UserRegistrationSerializer(data=valid_registration_data)
@@ -58,6 +57,7 @@ class TestUserRegistrationSerializer:
         assert user.password != valid_registration_data["password"]
         assert len(user.password) > 20  # Hashed passwords are longer
 
+    @pytest.mark.django_db
     def test_duplicate_email(self, valid_registration_data):
         """Test serializer rejects duplicate email."""
         # First create a user
@@ -79,6 +79,7 @@ class TestUserRegistrationSerializer:
         assert "email" in serializer.errors
         assert "already exists" in str(serializer.errors["email"])
 
+    @pytest.mark.django_db
     def test_email_normalization(self, valid_registration_data):
         """Test that email is normalized to lowercase and stripped."""
         data = valid_registration_data.copy()
@@ -91,6 +92,7 @@ class TestUserRegistrationSerializer:
         user = serializer.save()
         assert user.email == "test@example.com"
 
+    @pytest.mark.django_db
     def test_all_valid_roles(self, valid_registration_data):
         """Test that all valid roles are accepted."""
         valid_roles = ["student", "instructor", "admin"]
@@ -107,6 +109,7 @@ class TestUserRegistrationSerializer:
             user = serializer.save()
             assert user.role == role
 
+    @pytest.mark.django_db
     def test_invalid_email_format(self, valid_registration_data):
         """Test serializer rejects invalid email format."""
         invalid_data = valid_registration_data.copy()
@@ -117,6 +120,7 @@ class TestUserRegistrationSerializer:
         assert not serializer.is_valid()
         assert "email" in serializer.errors
 
+    @pytest.mark.django_db
     def test_invalid_role(self, valid_registration_data):
         """Test serializer rejects invalid role."""
         invalid_data = valid_registration_data.copy()
@@ -127,6 +131,7 @@ class TestUserRegistrationSerializer:
         assert not serializer.is_valid()
         assert "role" in serializer.errors
 
+    @pytest.mark.django_db
     def test_weak_password(self, valid_registration_data):
         """Test serializer rejects weak password."""
         invalid_data = valid_registration_data.copy()
@@ -149,6 +154,7 @@ class TestUserRegistrationSerializer:
         for field in required_fields:
             assert field in serializer.errors
 
+    @pytest.mark.django_db
     def test_password_is_write_only(self, valid_registration_data):
         """Test that password field is write-only and not returned in data."""
         serializer = UserRegistrationSerializer(data=valid_registration_data)
