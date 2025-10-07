@@ -22,6 +22,8 @@ DATABASES = {
     "default": dj_database_url.parse(DATABASE_URL)
 }
 
+CONN_MAX_AGE = 0
+
 # Use a unique test database per CI run when provided, to avoid clashes on reruns.
 _test_db_suffix = os.getenv("DJANGO_TEST_DB_SUFFIX")
 if _test_db_suffix:
