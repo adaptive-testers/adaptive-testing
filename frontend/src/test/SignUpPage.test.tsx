@@ -1,10 +1,10 @@
 import { screen, waitFor } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import userEvent from '@testing-library/user-event'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-import SignUpPage from '../features/SignUp/SignUpPage'
 import { publicApi } from '../api/axios'
 import { useAuth } from '../context/AuthContext'
+import SignUpPage from '../features/SignUp/SignUpPage'
 
 import { render } from './utils'
 
@@ -16,7 +16,7 @@ vi.mock('../api/axios', () => ({
 }))
 
 vi.mock('../context/AuthContext', async (importOriginal) => {
-    const actual = await importOriginal() as any
+    const actual = await importOriginal() as Record<string, unknown>
     return {
         ...actual,
         useAuth: vi.fn()
