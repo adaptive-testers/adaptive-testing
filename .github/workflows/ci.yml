@@ -23,41 +23,40 @@ jobs:
         id: branch_name
         uses: tj-actions/branch-names@v8
 
-  create_neon_branch:
-    name: Create Neon Branch
-    outputs:
-      db_url: ${{ steps.create_neon_branch.outputs.db_url }}
-      db_url_pooled: ${{ steps.create_neon_branch.outputs.db_url_pooled }}
-    needs: setup
-    if: |
-      github.event_name == 'pull_request' && (
-        github.event.action == 'synchronize'
-        || github.event.action == 'opened'
-        || github.event.action == 'reopened')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get branch expiration date (2 weeks from now)
-        id: get_expiration_date
-        run: echo "EXPIRES_AT=$(date -u --date '+14 days' +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+  # create_neon_branch:
+  #   name: Create Neon Branch
+  #   outputs:
+  #     db_url: ${{ steps.create_neon_branch.outputs.db_url }}
+  #     db_url_pooled: ${{ steps.create_neon_branch.outputs.db_url_pooled }}
+  #   needs: setup
+  #   if: |
+  #     github.event_name == 'pull_request' && (
+  #       github.event.action == 'synchronize'
+  #       || github.event.action == 'opened'
+  #       || github.event.action == 'reopened')
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Get branch expiration date (2 weeks from now)
+  #       id: get_expiration_date
+  #       run: echo "EXPIRES_AT=$(date -u --date '+14 days' +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
       
-      - name: Create Neon Branch
-        id: create_neon_branch
-        uses: neondatabase/create-branch-action@v6
-        with: 
-          project_id: ${{ vars.NEON_PROJECT_ID }}
-          branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
-          api_key: ${{ secrets.NEON_API_KEY }}
-          expires_at: ${{ env.EXPIRES_AT }}
+  #     - name: Create Neon Branch
+  #       id: create_neon_branch
+  #       uses: neondatabase/create-branch-action@v6
+  #       with: 
+  #         project_id: ${{ vars.NEON_PROJECT_ID }}
+  #         branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
+  #         api_key: ${{ secrets.NEON_API_KEY }}
+  #         expires_at: ${{ env.EXPIRES_AT }}
       
-      - name: Debug Neon action outputs
-        run: |
-          echo "db_url: ${{ steps.create_neon_branch.outputs.db_url != '' }}"
-          echo "db_url_pooled: ${{ steps.create_neon_branch.outputs.db_url_pooled != '' }}"
-          echo "branch_id: ${{ steps.create_neon_branch.outputs.branch_id != '' }}"
-          echo "password: ${{ steps.create_neon_branch.outputs.password != '' }}"
-          echo "created: ${{ steps.create_neon_branch.outputs.created != '' }}"
+  #     - name: Debug Neon action outputs
+  #       run: |
+  #         echo "db_url: ${{ steps.create_neon_branch.outputs.db_url != '' }}"
+  #         echo "db_url_pooled: ${{ steps.create_neon_branch.outputs.db_url_pooled != '' }}"
+  #         echo "branch_id: ${{ steps.create_neon_branch.outputs.branch_id != '' }}"
+  #         echo "password: ${{ steps.create_neon_branch.outputs.password != '' }}"
+  #         echo "created: ${{ steps.create_neon_branch.outputs.created != '' }}"
       
-
   delete_neon_branch:
     name: Delete Neon Branch
     needs: setup
@@ -73,8 +72,7 @@ jobs:
 
   backend:
     runs-on: ubuntu-latest
-    needs: [setup, create_neon_branch]
-    if: needs.create_neon_branch.result == 'success' || needs.create_neon_branch.result == 'skipped'
+    needs: [setup]
     strategy:
       matrix:
         python-version: [3.11, 3.13]
@@ -86,9 +84,30 @@ jobs:
       SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY || 'ci-secret-key-for-testing-only' }}
       DEBUG: false
       CORS_ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
-      DATABASE_URL: ${{ needs.create_neon_branch.outputs.db_url_pooled }}
+      # For non-PR events use a persistent secret; for PRs we'll set via $GITHUB_ENV below
+      DATABASE_URL: ${{ github.event_name != 'pull_request' && secrets.DATABASE_URL || '' }}
     steps:
       - uses: actions/checkout@v4
+      # PR-only: create/fetch Neon branch and export pooled URL to $GITHUB_ENV
+      - name: Get branch expiration date (2 weeks from now)
+        if: github.event_name == 'pull_request'
+        id: get_expiration_date
+        run: echo "EXPIRES_AT=$(date -u --date '+14 days' +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+
+      - name: Create Neon Branch
+        if: github.event_name == 'pull_request'
+        id: create_neon_branch_backend
+        uses: neondatabase/create-branch-action@v6
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+          expires_at: ${{ env.EXPIRES_AT }}
+
+      - name: Export DATABASE_URL
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "DATABASE_URL=${{ steps.create_neon_branch_backend.outputs.db_url_pooled }}" >> "$GITHUB_ENV"
       - name: Debug DATABASE_URL
         run: |
           echo "DATABASE_URL exists: ${{ env.DATABASE_URL != '' }}"
