@@ -23,40 +23,6 @@ jobs:
         id: branch_name
         uses: tj-actions/branch-names@v8
 
-  # create_neon_branch:
-  #   name: Create Neon Branch
-  #   outputs:
-  #     db_url: ${{ steps.create_neon_branch.outputs.db_url }}
-  #     db_url_pooled: ${{ steps.create_neon_branch.outputs.db_url_pooled }}
-  #   needs: setup
-  #   if: |
-  #     github.event_name == 'pull_request' && (
-  #       github.event.action == 'synchronize'
-  #       || github.event.action == 'opened'
-  #       || github.event.action == 'reopened')
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Get branch expiration date (2 weeks from now)
-  #       id: get_expiration_date
-  #       run: echo "EXPIRES_AT=$(date -u --date '+14 days' +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
-      
-  #     - name: Create Neon Branch
-  #       id: create_neon_branch
-  #       uses: neondatabase/create-branch-action@v6
-  #       with: 
-  #         project_id: ${{ vars.NEON_PROJECT_ID }}
-  #         branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
-  #         api_key: ${{ secrets.NEON_API_KEY }}
-  #         expires_at: ${{ env.EXPIRES_AT }}
-      
-  #     - name: Debug Neon action outputs
-  #       run: |
-  #         echo "db_url: ${{ steps.create_neon_branch.outputs.db_url != '' }}"
-  #         echo "db_url_pooled: ${{ steps.create_neon_branch.outputs.db_url_pooled != '' }}"
-  #         echo "branch_id: ${{ steps.create_neon_branch.outputs.branch_id != '' }}"
-  #         echo "password: ${{ steps.create_neon_branch.outputs.password != '' }}"
-  #         echo "created: ${{ steps.create_neon_branch.outputs.created != '' }}"
-      
   delete_neon_branch:
     name: Delete Neon Branch
     needs: setup
@@ -86,7 +52,7 @@ jobs:
       PY_VERSION: '3.13.7'
     steps:
       - uses: actions/checkout@v4
-      # PR-only: create/fetch Neon branch and export pooled URL to $GITHUB_ENV
+      
       - name: Get branch expiration date (2 weeks from now)
         if: github.event_name == 'pull_request'
         id: get_expiration_date
@@ -106,13 +72,11 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           echo "DATABASE_URL=${{ steps.create_neon_branch_backend.outputs.db_url_pooled }}" >> "$GITHUB_ENV"
+      
       - name: Export per-run test DB suffix
         run: |
           echo "DJANGO_TEST_DB_SUFFIX=${{ github.run_id }}_${{ github.run_attempt }}" >> "$GITHUB_ENV"
-      - name: Debug DATABASE_URL
-        run: |
-          echo "DATABASE_URL exists: ${{ env.DATABASE_URL != '' }}"
-          echo "DATABASE_URL length: ${#DATABASE_URL}"
+      
       - name: Set up Python ${{ env.PY_VERSION }}
         uses: actions/setup-python@v5
         with:
@@ -198,10 +162,3 @@ jobs:
       
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
-      
-      # Actionlint - GitHub Actions security
-      # - name: Run Actionlint
-      #   uses: rhysd/actionlint@v1.7.0
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     fail_on_error: true
