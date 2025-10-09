@@ -24,7 +24,7 @@ jobs:
         uses: tj-actions/branch-names@v8
 
   backend:
-    name: Backend Tests with Neon Database
+    name: backend
     needs: setup
     runs-on: ubuntu-latest
     defaults:
@@ -59,15 +59,11 @@ jobs:
       - name: Set DATABASE_URL from Neon action
         if: github.event_name == 'pull_request'
         run: |
-          echo "DATABASE_URL=${{ steps.create_neon_branch.outputs.db_url_pooled }}" >> "$GITHUB_ENV"      
+          echo "DATABASE_URL=${{ steps.create_neon_branch.outputs.db_url_pooled }}" >> "$GITHUB_ENV"
+      
       - name: Export per-run test DB suffix
         run: |
           echo "DJANGO_TEST_DB_SUFFIX=${{ github.run_id }}_${{ github.run_attempt }}" >> "$GITHUB_ENV"
-      
-      - name: Debug DATABASE_URL
-        run: |
-          echo "DATABASE_URL exists: ${{ env.DATABASE_URL != '' }}"
-          echo "DATABASE_URL length: ${#DATABASE_URL}"
       
       - name: Set up Python ${{ env.PY_VERSION }}
         uses: actions/setup-python@v5
