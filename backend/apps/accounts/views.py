@@ -1,43 +1,34 @@
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from django.contrib.auth import authenticate
-from django.http import HttpRequest
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
 from .serializers import UserRegistrationSerializer
 
-# TODO: Create serializers.py file with these serializers:
-# - UserRegistrationSerializer DONE
-# - UserLoginSerializer
-# - UserProfileSerializer
+if TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractBaseUser
+    from django.http import HttpRequest
+    from rest_framework.request import Request
 
 
 class UserRegistrationView(generics.CreateAPIView):
     """
     User registration endpoint.
-
     POST /api/auth/register/
-    Body: {
-        "email": "user@example.com",
-        "first_name": "John",
-        "last_name": "Doe",
-        "password": "securepassword",
-        "role": "student" # or "instructor" or "admin"
-    }
     """
 
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
     permission_classes = [AllowAny]
 
-    # match DRF CreateModelMixin.create signature
-    def create(self, request: Any, *_: Any, **__: Any) -> Response:
+    def create(self, request: Any, *args: Any, **kwargs: Any) -> Response:  # noqa: ARG002
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -52,30 +43,11 @@ class UserRegistrationView(generics.CreateAPIView):
         return Response(data, status=status.HTTP_201_CREATED)
 
 
-@api_view(["POST"])
-@permission_classes([AllowAny])
+@api_view(["POST"])  # type: ignore[misc]  # drf decorators are untyped for mypy
+@permission_classes([AllowAny])  # type: ignore[misc]
 def user_login_view(request: Request) -> Response:
     """
     User login endpoint.
-
-    POST /api/auth/login/
-    Body:
-    {
-        "email": "user@example.com",
-        "password": "securepassword"
-    }
-
-    Response (200):
-    {
-        "email": "...",
-        "first_name": "...",
-        "last_name": "...",
-        "role": "...",
-        "tokens": {
-            "refresh": "...",
-            "access": "..."
-        }
-    }
     """
     email_raw = request.data.get("email")
     password = request.data.get("password")
@@ -90,12 +62,17 @@ def user_login_view(request: Request) -> Response:
 
     email = str(email_raw).strip().lower()
 
-    user = authenticate(request, username=email, password=password)
-    if not user:
+    auth_user: AbstractBaseUser | None = authenticate(
+        request, username=email, password=password
+    )
+    if not auth_user:
+        return Response({"detail": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
+    if not auth_user.is_active:
+        return Response({"detail": "User inactive."}, status=status.HTTP_403_FORBIDDEN)
+    if not isinstance(auth_user, User):
         return Response({"detail": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
 
-    if not user.is_active:
-        return Response({"detail": "User inactive."}, status=status.HTTP_403_FORBIDDEN)
+    user = auth_user
 
     refresh = RefreshToken.for_user(user)
     data = {
@@ -111,23 +88,10 @@ def user_login_view(request: Request) -> Response:
     return Response(data, status=status.HTTP_200_OK)
 
 
-@api_view(["GET", "PUT"])
-@permission_classes([IsAuthenticated])
-def user_profile_view(_request: HttpRequest) -> Response:
+@api_view(["GET", "PUT"])  # type: ignore[misc]
+@permission_classes([IsAuthenticated])  # type: ignore[misc]
+def user_profile_view(request: HttpRequest) -> Response:  # noqa: ARG001
     """
-    User profile endpoint.
-
-    GET /api/auth/profile/
-    PUT /api/auth/profile/
+    User profile endpoint (stub).
     """
-    # TODO: Implement user profile logic
-    # GET: Return current user data
-    # PUT: Update user profile
     return Response({"message": "Not implemented"}, status=status.HTTP_501_NOT_IMPLEMENTED)
-
-# TODO: Implement these endpoints:
-# - User logout
-# - User password change
-# - User password reset
-# - User email verification
-# - User OAuth endpoints (Google, Microsoft)

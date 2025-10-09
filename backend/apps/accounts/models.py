@@ -83,7 +83,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ["first_name", "last_name"]
 
     # Set the custom user manager
-    objects = UserManager()  # type: ignore[assignment]
+    objects = UserManager()
 
     class Meta:
         db_table = "auth_user"

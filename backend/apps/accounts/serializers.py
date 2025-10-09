@@ -1,10 +1,15 @@
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
 from .models import User
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractBaseUser
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -50,10 +55,11 @@ class UserLoginSerializer(serializers.ModelSerializer):
     - normalizes email
     - authenticates against the backend
     """
+
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, trim_whitespace=False)
 
-    # Populated after .is_valid() on success
+    # Set after successful validation
     user: User | None = None
 
     class Meta:
@@ -72,25 +78,26 @@ class UserLoginSerializer(serializers.ModelSerializer):
         email = str(email_raw).strip().lower()
 
         request = self.context.get("request")
-        user = authenticate(request, username=email, password=password)
+        auth_user: AbstractBaseUser | None = authenticate(
+            request, username=email, password=password
+        )
 
-        if not user:
+        if not auth_user:
             raise serializers.ValidationError({"detail": "Invalid credentials."})
-        if not user.is_active:
+        if not auth_user.is_active:
             raise serializers.ValidationError({"detail": "User inactive."})
 
-        self.user = user
+        # Ensure it’s our custom User model
+        if not isinstance(auth_user, User):
+            raise serializers.ValidationError({"detail": "Invalid credentials."})
+
+        self.user = auth_user  # mypy is satisfied after isinstance() narrowing
         attrs["email"] = email  # normalized
         return attrs
 
-class UserProfileSerializer(serializers.ModelSerializer):
-    """
-    Serializer for user profile.
 
-    TODO: Implement this serializer with:
-    - Read-only fields
-    - Update validation
-    """
+class UserProfileSerializer(serializers.ModelSerializer):
+    """Serializer for user profile."""
 
     class Meta:
         model = User
@@ -103,5 +110,3 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["email", "created_at"]
-
-    # TODO: Add validation methods
