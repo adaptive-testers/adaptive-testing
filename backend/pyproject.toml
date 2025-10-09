@@ -20,17 +20,17 @@ djangorestframework-simplejwt = "^5.5.1"
 dj-database-url = "^3.0.1"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.1.0"
-mypy = "^1.5.0"
+ruff = "^0.14.0"
+mypy = "^1.18.2"
 pre-commit = "^3.4.0"
-django-stubs = "^5.2.5"
+django-stubs = "^5.2.7"
 djangorestframework-stubs = "^3.16.4"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.4.2"
 pytest-django = "^4.11.1"
 factory-boy = "^3.3.3"
-coverage = "^7.3.2"
+coverage = "^7.10.7"
 pytest-cov = "^4.1.0"
 
 [build-system]
