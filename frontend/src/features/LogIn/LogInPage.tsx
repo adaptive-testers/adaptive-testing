@@ -1,22 +1,21 @@
-import { useState } from "react";
-import { useAuth } from "../../context/AuthContext";
-import { publicApi } from "../../api/axios";
-
 import axios from "axios";
+import { useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import { MdOutlineMailOutline } from "react-icons/md";
 import { TbLockPassword } from "react-icons/tb";
-import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
+import { Link, useNavigate } from "react-router-dom";
 
-import microsoftLogo from "../../assets/microsoftLogo.png";
+import { publicApi } from "../../api/axios";
 import googleLogo from "../../assets/googleLogo.png";
+import microsoftLogo from "../../assets/microsoftLogo.png";
+import { useAuth } from "../../context/AuthContext";
 
-type FormFields = {
+interface FormFields {
   userEmail: string;
   userPassword: string;
   keepSignedIn: boolean;
-};
+}
 
 const validatePassword = (password: string) => {
   const hasNumber = /\d/.test(password);
@@ -159,12 +158,13 @@ export default function LogInContainer() {
                       keepSignedIn ? "bg-[#EF6262]" : "bg-[#0A0A0A]"
                     }`}
                   ></button>
-                  <p
+                  <button
+                    type="button"
                     onClick={() => setKeepSignedIn((v) => !v)}
-                    className="Forgot-pass w-[120px] h-[16px] font-geist font-normal text-[12px] leading-[16px] flex items-center tracking-[0.5px]"
+                    className="Forgot-pass w-[120px] h-[16px] font-geist font-normal text-[12px] leading-[16px] flex items-center tracking-[0.5px] bg-transparent border-none cursor-pointer"
                   >
                     Keep me signed in
-                  </p>
+                  </button>
                 </div>
               </div>
               <form>
@@ -209,7 +209,7 @@ export default function LogInContainer() {
                 href="/forgot-password"
                 className="text-[#EF6262] no-underline hover:underline cursor-pointer"
               >
-                Can't log in?
+                Can&#39;t log in?
               </a>
               <span className="mx-1 text-[#ededed]">•</span>
               <Link
