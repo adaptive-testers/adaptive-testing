@@ -13,29 +13,35 @@ from .models import User
 from .serializers import UserRegistrationSerializer
 
 if TYPE_CHECKING:
-    from django.contrib.auth.models import AbstractBaseUser
     from django.http import HttpRequest
     from rest_framework.request import Request
 
 
 class UserRegistrationView(generics.CreateAPIView):
     """
-    User registration endpoint.
     POST /api/auth/register/
+    {
+        "email": "user@example.com",
+        "first_name": "John",
+        "last_name": "Doe",
+        "password": "securepassword",
+        "role": "student"  # or instructor/admin
+    }
     """
 
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
     permission_classes = [AllowAny]
 
-    def create(self, request: Any, *args: Any, **kwargs: Any) -> Response:  # noqa: ARG002
+    # Keep ruff happy: underscore unused *args/**kwargs
+    def create(self, request: Request, *_args: Any, **_kwargs: Any) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         user = serializer.save()
 
         refresh = RefreshToken.for_user(user)
-        data = serializer.data
+        data = dict(serializer.data)
         data["tokens"] = {
             "refresh": str(refresh),
             "access": str(refresh.access_token),
@@ -43,11 +49,12 @@ class UserRegistrationView(generics.CreateAPIView):
         return Response(data, status=status.HTTP_201_CREATED)
 
 
-@api_view(["POST"])  # type: ignore[misc]  # drf decorators are untyped for mypy
+@api_view(["POST"])  # type: ignore[misc]
 @permission_classes([AllowAny])  # type: ignore[misc]
 def user_login_view(request: Request) -> Response:
     """
-    User login endpoint.
+    POST /api/auth/login/
+    { "email": "...", "password": "..." }
     """
     email_raw = request.data.get("email")
     password = request.data.get("password")
@@ -61,25 +68,22 @@ def user_login_view(request: Request) -> Response:
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
     email = str(email_raw).strip().lower()
-
-    auth_user: AbstractBaseUser | None = authenticate(
-        request, username=email, password=password
-    )
+    auth_user = authenticate(request, username=email, password=password)
     if not auth_user:
         return Response({"detail": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
-    if not auth_user.is_active:
-        return Response({"detail": "User inactive."}, status=status.HTTP_403_FORBIDDEN)
+
     if not isinstance(auth_user, User):
         return Response({"detail": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
 
-    user = auth_user
+    if not auth_user.is_active:
+        return Response({"detail": "User inactive."}, status=status.HTTP_403_FORBIDDEN)
 
-    refresh = RefreshToken.for_user(user)
+    refresh = RefreshToken.for_user(auth_user)
     data = {
-        "email": user.email,
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "role": user.role,
+        "email": auth_user.email,
+        "first_name": auth_user.first_name,
+        "last_name": auth_user.last_name,
+        "role": auth_user.role,
         "tokens": {
             "refresh": str(refresh),
             "access": str(refresh.access_token),
@@ -90,8 +94,6 @@ def user_login_view(request: Request) -> Response:
 
 @api_view(["GET", "PUT"])  # type: ignore[misc]
 @permission_classes([IsAuthenticated])  # type: ignore[misc]
-def user_profile_view(request: HttpRequest) -> Response:  # noqa: ARG001
-    """
-    User profile endpoint (stub).
-    """
+def user_profile_view(_request: HttpRequest) -> Response:
+    """Stub for future profile work."""
     return Response({"message": "Not implemented"}, status=status.HTTP_501_NOT_IMPLEMENTED)

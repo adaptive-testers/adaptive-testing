@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
-from django.contrib.auth.models import BaseUserManager
+from django.contrib.auth.models import UserManager as DjangoUserManager
 
 if TYPE_CHECKING:
     from .models import User
 
 
-class UserManager(BaseUserManager["User"]):
-    """Custom user manager for the User model"""
+class UserManager(DjangoUserManager["User"]):
+    """Custom user manager for the User model."""
 
     def create_user(
         self,
@@ -17,13 +17,12 @@ class UserManager(BaseUserManager["User"]):
         password: str | None = None,
         **extra_fields: Any,
     ) -> User:
-        """Create and save a user with the given email and password"""
         if not email:
             raise ValueError("The Email field must be set")
 
         email = self.normalize_email(email)
-        # BaseUserManager.model is typed loosely; cast to our concrete model for mypy
-        user = cast("User", self.model(email=email, **extra_fields))
+        # Annotate so mypy knows this is our concrete User, not Any.
+        user: User = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -34,8 +33,6 @@ class UserManager(BaseUserManager["User"]):
         password: str | None = None,
         **extra_fields: Any,
     ) -> User:
-        """Create and return a superuser with the given email and password"""
-
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
