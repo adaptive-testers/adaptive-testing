@@ -2,16 +2,18 @@
 Tests for the UserRegistrationSerializer.
 """
 
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import pytest
 from django.contrib.auth import get_user_model
 
-from apps.accounts.models import User
 from apps.accounts.serializers import UserRegistrationSerializer
 
+if TYPE_CHECKING:
+    from apps.accounts.models import User
+
 # Type alias for the User model
-UserModel = cast(type[User], get_user_model())
+UserModel = cast("type[User]", get_user_model())
 
 pytestmark = pytest.mark.django_db
 
