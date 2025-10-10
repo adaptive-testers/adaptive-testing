@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from django.contrib.auth import authenticate
 from rest_framework import generics, status
@@ -13,35 +13,23 @@ from .models import User
 from .serializers import UserRegistrationSerializer
 
 if TYPE_CHECKING:
-    from django.http import HttpRequest
     from rest_framework.request import Request
 
 
 class UserRegistrationView(generics.CreateAPIView):
-    """
-    POST /api/auth/register/
-    {
-        "email": "user@example.com",
-        "first_name": "John",
-        "last_name": "Doe",
-        "password": "securepassword",
-        "role": "student"  # or instructor/admin
-    }
-    """
-
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
     permission_classes = [AllowAny]
 
-    # Keep ruff happy: underscore unused *args/**kwargs
-    def create(self, request: Request, *_args: Any, **_kwargs: Any) -> Response:
+    # Keep DRF signature but underscore unused args for ruff
+    def create(self, request: Any, *_: Any, **__: Any) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         user = serializer.save()
 
         refresh = RefreshToken.for_user(user)
-        data = dict(serializer.data)
+        data = serializer.data
         data["tokens"] = {
             "refresh": str(refresh),
             "access": str(refresh.access_token),
@@ -52,10 +40,6 @@ class UserRegistrationView(generics.CreateAPIView):
 @api_view(["POST"])  # type: ignore[misc]
 @permission_classes([AllowAny])  # type: ignore[misc]
 def user_login_view(request: Request) -> Response:
-    """
-    POST /api/auth/login/
-    { "email": "...", "password": "..." }
-    """
     email_raw = request.data.get("email")
     password = request.data.get("password")
 
@@ -68,32 +52,27 @@ def user_login_view(request: Request) -> Response:
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
     email = str(email_raw).strip().lower()
-    auth_user = authenticate(request, username=email, password=password)
-    if not auth_user:
+
+    authed = authenticate(request, username=email, password=password)
+    if not authed:
         return Response({"detail": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
 
-    if not isinstance(auth_user, User):
-        return Response({"detail": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
-
-    if not auth_user.is_active:
+    if not authed.is_active:
         return Response({"detail": "User inactive."}, status=status.HTTP_403_FORBIDDEN)
 
-    refresh = RefreshToken.for_user(auth_user)
+    user = cast(User, authed)
+    refresh = RefreshToken.for_user(user)
     data = {
-        "email": auth_user.email,
-        "first_name": auth_user.first_name,
-        "last_name": auth_user.last_name,
-        "role": auth_user.role,
-        "tokens": {
-            "refresh": str(refresh),
-            "access": str(refresh.access_token),
-        },
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "role": user.role,
+        "tokens": {"refresh": str(refresh), "access": str(refresh.access_token)},
     }
     return Response(data, status=status.HTTP_200_OK)
 
 
 @api_view(["GET", "PUT"])  # type: ignore[misc]
 @permission_classes([IsAuthenticated])  # type: ignore[misc]
-def user_profile_view(_request: HttpRequest) -> Response:
-    """Stub for future profile work."""
+def user_profile_view(_request: Request) -> Response:
     return Response({"message": "Not implemented"}, status=status.HTTP_501_NOT_IMPLEMENTED)

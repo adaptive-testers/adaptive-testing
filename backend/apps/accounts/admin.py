@@ -1,32 +1,36 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 
 from .models import User
 
 
 @admin.register(User)
-class UserAdmin(BaseUserAdmin):
-    """Admin configuration for the custom User model"""
+class UserAdmin(DjangoUserAdmin):
+    ordering = ("email",)
 
     list_display = (
         "email",
         "first_name",
         "last_name",
-        "is_verified",
+        "role",
         "is_active",
-        "created_at",
+        "is_staff",
+        "last_login",
+        "date_joined",
     )
+
     list_filter = (
         "role",
-        "is_verified",
         "is_active",
         "is_staff",
         "is_superuser",
-        "created_at",
-        "oauth_provider",
+        "last_login",
+        "date_joined",
     )
+
+    readonly_fields = ("last_login", "date_joined")
+
     search_fields = ("email", "first_name", "last_name")
-    ordering = ("-created_at",)
 
     fieldsets = (
         (None, {"fields": ("email", "password")}),
@@ -35,18 +39,16 @@ class UserAdmin(BaseUserAdmin):
             "Permissions",
             {
                 "fields": (
+                    "role",
                     "is_active",
-                    "is_verified",
                     "is_staff",
                     "is_superuser",
                     "groups",
                     "user_permissions",
-                    "role",
                 )
             },
         ),
-        ("Important dates", {"fields": ("last_login", "created_at", "updated_at")}),
-        ("OAuth", {"fields": ("oauth_provider", "oauth_id")}),
+        ("Important dates", {"fields": ("last_login", "date_joined")}),
     )
 
     add_fieldsets = (
@@ -58,11 +60,13 @@ class UserAdmin(BaseUserAdmin):
                     "email",
                     "first_name",
                     "last_name",
+                    "role",
                     "password1",
                     "password2",
+                    "is_active",
+                    "is_staff",
+                    "is_superuser",
                 ),
             },
         ),
     )
-
-    readonly_fields = ("created_at", "updated_at", "last_login")
