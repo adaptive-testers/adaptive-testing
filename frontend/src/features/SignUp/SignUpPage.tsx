@@ -19,7 +19,7 @@ interface FormFields {
 }
 
 
-export default function SignUpContainer() {
+export default function SignUpPage() {
     const {register, handleSubmit, setError, formState: { errors, isSubmitting }} = useForm<FormFields>();
     const { setAccessToken } = useAuth();
 
