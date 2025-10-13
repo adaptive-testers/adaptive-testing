@@ -28,7 +28,6 @@ const validatePassword = (password: string) => {
 
 export default function LogInContainer() {
   const [showPassword, setShowPassword] = useState(false);
-  const [keepSignedIn, setKeepSignedIn] = useState(false);
   const { setAccessToken } = useAuth();
   const navigate = useNavigate();
 
@@ -36,10 +35,14 @@ export default function LogInContainer() {
     register,
     handleSubmit,
     setError,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormFields>({
     defaultValues: { userEmail: "", userPassword: "", keepSignedIn: false },
   });
+
+  const keepSignedIn = watch("keepSignedIn") ?? false;
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     try {
@@ -50,7 +53,6 @@ export default function LogInContainer() {
       });
 
       if (res?.access) setAccessToken(res.access);
-
       navigate("/dashboard");
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -73,6 +75,7 @@ export default function LogInContainer() {
             </h1>
             <div className="Frame-18 flex flex-col items-start gap-[32px] w-[402px] h-[264px]">
               <div className="Frame-17 flex flex-col items-start gap-[24px] w-[402px] h-[192px]">
+                {/* Email */}
                 <form
                   className="Frame-13 flex flex-col items-start gap-[8px] w-[402px] h-[64px]"
                   onSubmit={handleSubmit(onSubmit)}
@@ -108,9 +111,12 @@ export default function LogInContainer() {
                     <MdOutlineMailOutline className="order-first scale-170 w-[10px] h-[12px] mx-auto text-[#8e8e8e] peer-focus:text-white text-sm pointer-events-none" />
                   </div>
                 </form>
+
+                {/* Password */}
                 <form
                   className="Frame-14 flex flex-col items-start gap-[8px] w-[402px] h-[64px]"
                   onSubmit={handleSubmit(onSubmit)}
+                  noValidate
                 >
                   <div className="flex justify-between items-center w-full">
                     <label
@@ -140,44 +146,76 @@ export default function LogInContainer() {
                     <TbLockPassword className="flex order-first justify-center scale-170 w-[11px] h-[12px] gap-[10px] mx-auto text-[#8e8e8e] peer-focus:text-white text-sm pointer-events-none" />
                     <button
                       type="button"
+                      aria-controls="password-input"
                       aria-label={
-                        showPassword ? "Hide password" : "Show password"
+                        showPassword ? "Hide password" : "Show characters"
                       }
                       onClick={() => setShowPassword((v) => !v)}
                       className="w-[16px] h-[13px] mx-auto scale-125 text-[#8e8e8e] text-sm cursor-pointer hover:text-white transition-colors duration-300 bg-transparent border-none p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ae3a3a] rounded"
                     >
-                      {showPassword ? <IoEyeOutline /> : <IoEyeOffOutline />}
+                      {!showPassword && (
+                        <span className="sr-only">Show password</span>
+                      )}
+
+                      {showPassword ? (
+                        <IoEyeOutline aria-hidden="true" focusable="false" />
+                      ) : (
+                        <IoEyeOffOutline aria-hidden="true" focusable="false" />
+                      )}
                     </button>
                   </div>
                 </form>
+
+                {/* Keep me signed in */}
+                <input
+                  type="checkbox"
+                  {...register("keepSignedIn")}
+                  className="hidden"
+                  aria-hidden="true"
+                  tabIndex={-1}
+                />
                 <div className="Frame-39 flex items-center gap-[8px] w-[140px] h-[16px] text-[#8E8E8E] transition duration-300 ease-in-out hover:scale-101 hover:text-white cursor-pointer">
                   <button
                     type="button"
-                    onClick={() => setKeepSignedIn((v) => !v)}
+                    onClick={() =>
+                      setValue("keepSignedIn", !keepSignedIn, {
+                        shouldDirty: true,
+                      })
+                    }
                     className={`flex items-center gap-[10px] w-[14px] h-[14px] p-[3px] rounded-[4px] border border-[#282828] ${
                       keepSignedIn ? "bg-[#EF6262]" : "bg-[#0A0A0A]"
                     }`}
+                    aria-pressed={keepSignedIn}
                   ></button>
                   <button
                     type="button"
-                    onClick={() => setKeepSignedIn((v) => !v)}
+                    onClick={() =>
+                      setValue("keepSignedIn", !keepSignedIn, {
+                        shouldDirty: true,
+                      })
+                    }
                     className="Forgot-pass w-[120px] h-[16px] font-geist font-normal text-[12px] leading-[16px] flex items-center tracking-[0.5px] bg-transparent border-none cursor-pointer"
                   >
                     Keep me signed in
                   </button>
                 </div>
               </div>
-              <form>
+
+              {/* Login */}
+              <form onSubmit={handleSubmit(onSubmit)} noValidate>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex justify-center items-center w-[402px] h-[40px] gap-2 bg-[#EF6262] rounded-[8px] hover:border hover:border-white hover:scale-101 duration-300 font-geist text-[14px] tracking-[0.5px] text-white cursor-pointer"
+                  aria-busy={isSubmitting}
+                  aria-disabled={isSubmitting}
+                  className="flex justify-center items-center w-[402px] h-[40px] gap-2 bg-[#EF6262] rounded-[8px] hover:border hover:border-white hover:scale-101 duration-300 font-geist text-[14px] tracking-[0.5px] text-white cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? "Logging in..." : "Log In"}
                 </button>
               </form>
             </div>
           </div>
+
           <div className="Frame-26 flex justify-center items-center gap-[10px] w-[402px] h-[16px]">
             <div className="Rectangle-2 w-[182px] h-[1px] bg-[#232323] flex-grow"></div>
             <p className="OR w-[18px] h-[16px] font-geist font-semibold text-[12px] leading-[16px] flex items-center text-center tracking-[0.5px] text-[#8E8E8E]">
@@ -185,6 +223,7 @@ export default function LogInContainer() {
             </p>
             <div className="Rectangle-1 w-[182px] h-[1px] bg-[#232323] flex-grow"></div>
           </div>
+
           <div className="Frame-24 flex flex-col items-center gap-[40px] w-[402px] h-[120px]">
             <div className="Frame-27 flex justify-between items-center gap-[24px] w-[402px] h-[40px]">
               <button className="Frame-20 flex justify-center items-center gap-[10px] w-[192px] h-[40px] px-[14px] mx-auto border border-[#242424] rounded-[8px] hover:border-white hover:scale-102 duration-600 cursor-pointer">
@@ -203,6 +242,7 @@ export default function LogInContainer() {
               </button>
             </div>
           </div>
+
           <div className="Frame-7 flex flex-col justify-center items-center gap-[21px] w-[402px] h-[40px]">
             <p className="font-geist font-normal text-[14px] leading-[16px] flex items-center tracking-[0.5px]">
               <a
