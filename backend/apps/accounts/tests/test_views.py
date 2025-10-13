@@ -1,4 +1,4 @@
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import pytest
 from django.contrib.auth import get_user_model
@@ -6,10 +6,11 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from apps.accounts.models import User
+if TYPE_CHECKING:
+    from apps.accounts.models import User
 
 # Type alias for the User model
-UserModel = cast(type[User], get_user_model())
+UserModel = cast("type[User]", get_user_model())
 
 pytestmark = pytest.mark.django_db
 
