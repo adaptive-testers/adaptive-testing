@@ -27,13 +27,13 @@ class User(AbstractUser):
     username = None
 
     # Set email as the primary identifier
-    email = models.EmailField(
+    email: models.EmailField = models.EmailField(
         unique=True, help_text="User's email address (used as username)"
     )
 
     # Add additional fields for user profiles
-    first_name = models.CharField(max_length=40, help_text="User's first name")
-    last_name = models.CharField(max_length=40, help_text="User's last name")
+    first_name: models.CharField = models.CharField(max_length=40, help_text="User's first name")
+    last_name: models.CharField = models.CharField(max_length=40, help_text="User's last name")
 
     role: models.CharField = models.CharField(
         max_length=20,

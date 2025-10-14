@@ -1,11 +1,7 @@
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-
-if TYPE_CHECKING:
-    from django.contrib.auth.base_user import AbstractBaseUser
 
 from .models import User
 
@@ -72,29 +68,9 @@ class UserLoginSerializer(serializers.ModelSerializer):
         model = User
         fields = ["email", "password"]
 
-    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
-        email_raw = attrs.get("email")
-        password = attrs.get("password")
-
-        email = str(email_raw).strip().lower()
-
-        request = self.context.get("request")
-        auth_user: AbstractBaseUser | None = authenticate(
-            request, username=email, password=password
-        )
-
-        if not auth_user:
-            raise serializers.ValidationError({"detail": "Invalid credentials."})
-        if not auth_user.is_active:
-            raise serializers.ValidationError({"detail": "User inactive."})
-
-        # Ensure it’s our custom User model
-        if not isinstance(auth_user, User):
-            raise serializers.ValidationError({"detail": "Invalid credentials."})
-
-        self.user = auth_user  # mypy is satisfied after isinstance() narrowing
-        attrs["email"] = email  # normalized
-        return attrs
+    def validate_email(self, value: str) -> str:
+        """Normalize email format."""
+        return str(value).strip().lower()
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

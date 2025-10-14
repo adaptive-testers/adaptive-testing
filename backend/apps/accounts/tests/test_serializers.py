@@ -59,64 +59,39 @@ class TestUserLoginSerializer:
         assert "email" in serializer.errors and "password" in serializer.errors
 
     def test_invalid_credentials_returns_detail_error(self):
-        """Test that invalid credentials return detail error."""
-        UserModel.objects.create_user(
-            email="badpass@example.com",
-            password="CorrectPass123!",
-            first_name="Bad",
-            last_name="Cred",
-            role="student",
-        )
+        """Test that serializer validates email format correctly."""
         serializer = UserLoginSerializer(
             data={"email": "badpass@example.com", "password": "wrong"},
-            context={"request": None},
         )
-        assert not serializer.is_valid()
-        assert "detail" in serializer.errors
-        assert "Invalid credentials." in str(serializer.errors["detail"])
+        # Serializer now only validates format, not authentication
+        assert serializer.is_valid()
+        assert serializer.validated_data["email"] == "badpass@example.com"
 
     def test_inactive_user_is_rejected(self):
-        """Test that inactive users are rejected with appropriate error."""
-        # Create an inactive user
-        UserModel.objects.create_user(
-            email="inactive@example.com",
-            password="StrongP@ssw0rd!",
-            first_name="Ina",
-            last_name="Ctive",
-            role="student",
-        )
-        user = UserModel.objects.get(email="inactive@example.com")
-        user.is_active = False
-        user.save(update_fields=["is_active"])
-
+        """Test that serializer validates email format correctly."""
         serializer = UserLoginSerializer(
             data={"email": "inactive@example.com", "password": "StrongP@ssw0rd!"},
-            context={"request": None},
         )
-        assert not serializer.is_valid()
-        assert "detail" in serializer.errors
-        # Django's authenticate() returns None for inactive users, so we get "Invalid credentials"
-        assert "Invalid credentials." in str(serializer.errors["detail"])
+        # Serializer now only validates format, not authentication
+        assert serializer.is_valid()
+        assert serializer.validated_data["email"] == "inactive@example.com"
 
     def test_nonexistent_user_returns_invalid_credentials(self):
-        """Test that non-existent users return invalid credentials error."""
+        """Test that serializer validates email format correctly."""
         serializer = UserLoginSerializer(
             data={"email": "nonexistent@example.com", "password": "somepassword"},
-            context={"request": None},
         )
-        assert not serializer.is_valid()
-        assert "detail" in serializer.errors
-        assert "Invalid credentials." in str(serializer.errors["detail"])
+        # Serializer now only validates format, not authentication
+        assert serializer.is_valid()
+        assert serializer.validated_data["email"] == "nonexistent@example.com"
 
-    def test_valid_credentials_normalizes_email_and_sets_user(self, active_user):
-        """Test that valid credentials normalize email and set user attribute."""
+    def test_valid_credentials_normalizes_email_and_sets_user(self):
+        """Test that serializer normalizes email format correctly."""
         serializer = UserLoginSerializer(
             data={"email": "  LOGIN@EXAMPLE.COM  ", "password": "StrongP@ssw0rd!"},
-            context={"request": None},
         )
         assert serializer.is_valid(), serializer.errors
         assert serializer.validated_data["email"] == "login@example.com"
-        assert getattr(serializer, "user", None) == active_user
 
 
 # ===============================

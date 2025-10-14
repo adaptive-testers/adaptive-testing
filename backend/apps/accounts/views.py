@@ -1,4 +1,4 @@
-from typing import Any, cast
+from typing import Any
 
 from django.contrib.auth import authenticate  # noqa: F401
 from rest_framework import generics, status
@@ -73,18 +73,32 @@ def user_login_view(request: Request) -> Response:
         "password": "securepassword"
     }
     """
+    # Step 1: Validate input data format
     serializer = UserLoginSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    email = serializer.validated_data["email"].strip().lower()
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Step 2: Extract and normalize data
+    email = serializer.validated_data["email"]
     password = serializer.validated_data["password"]
-    authed = authenticate(request, username=email, password=password)
-    if not authed:
+
+    # Step 3: Authenticate user
+    user = authenticate(request, username=email, password=password)
+
+    # Step 4: Handle authentication results
+    if not user:
+        # Check if user exists but is inactive
+        try:
+            existing_user = User.objects.get(email=email)
+            if not existing_user.is_active:
+                return Response({"detail": "User inactive."}, status=status.HTTP_403_FORBIDDEN)
+        except User.DoesNotExist:
+            pass
         return Response({"detail": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
 
-    if not authed.is_active:
-        return Response({"detail": "User inactive."}, status=status.HTTP_403_FORBIDDEN)
-
-    user = authed
+    # Step 5: Ensure it's our custom User model and is active
+    if not isinstance(user, User) or not user.is_active:
+        return Response({"detail": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
     refresh = RefreshToken.for_user(user)
     data = {
         "email": user.email,
@@ -99,7 +113,7 @@ def user_login_view(request: Request) -> Response:
 
 @api_view(["GET", "PUT"])
 @permission_classes([IsAuthenticated])
-def user_profile_view(request: Request) -> Response:
+def user_profile_view(request: Request) -> Response: # noqa: ARG001
     """
     User profile endpoint.
 
