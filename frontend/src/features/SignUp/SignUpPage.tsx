@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
-
+import { IoPersonOutline } from "react-icons/io5";
+import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import { MdOutlineMailOutline } from "react-icons/md";
-import { IoPersonOutline, IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import { TbLockPassword } from "react-icons/tb";
 
-import microsoftLogo from "../../assets/microsoftLogo.png";
-import googleLogo from "../../assets/googleLogo.png";
 import { publicApi } from "../../api/axios";
+import googleLogo from "../../assets/googleLogo.png";
+import microsoftLogo from "../../assets/microsoftLogo.png";
+import { useAuth } from "../../context/AuthContext";
 
 interface FormFields {
-    fullName: string;
+    firstName: string;
+    lastName: string;
     userEmail: string;
     userPassword: string;
 }
@@ -19,22 +21,49 @@ interface FormFields {
 
 export default function SignUpContainer() {
     const {register, handleSubmit, setError, formState: { errors, isSubmitting }} = useForm<FormFields>();
+    const { setAccessToken } = useAuth();
 
     const [showPassword, setShowPassword] = useState(false);
+
+    // Password validation function
+    const validatePassword = (password: string) => {
+        const hasNumber = /\d/.test(password);
+        const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
+        
+        if (!hasNumber) {
+            return "Password must contain at least one number";
+        }
+        if (!hasSpecialChar) {
+            return "Password must contain at least one special character";
+        }
+        return true;
+    };
 
     const handlePasswordToggle = () => setShowPassword((prev) => !prev);
 
     const onSubmit: SubmitHandler<FormFields> = async (data) => {
         try {
-            const response = await publicApi.post("/auth/register", data);
-            console.log("Account created successfully:", response.data);
+            const registrationData = {
+                email: data.userEmail,
+                first_name: data.firstName,
+                last_name: data.lastName,
+                password: data.userPassword,
+                role: "student"
+            };
 
+            const response = await publicApi.post("/auth/register/", registrationData);
+            
+            if (response.data.tokens?.access) {
+                setAccessToken(response.data.tokens.access);
+            }
+
+            
+            
         }
         catch (error){
             setError("root", {
                 message: "An error occurred while creating your account.",
-            })
-            console.log("Error:", error);
+            });
         }
         
     };
@@ -53,21 +82,32 @@ export default function SignUpContainer() {
             </div>
 
             <div className="w-full pl-4 pr-4">
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
-                    <div className="relative">
-                        <label htmlFor="fullName-input" className="text-[#8e8e8e] geist-font text-sm font-[375]">Full Name</label>
-                        <input {...register("fullName", { required: "Name is required" })} id="fullName-input" type="text" className="peer text-white text-sm pl-10 pr-2 h-9 w-full bg-neutral-950 border-[#282828] border-[2px] rounded-lg focus:border-[rgba(174,58,58,0.4)] focus:outline-none" />
-                        <IoPersonOutline className="absolute left-[10px] top-[72%] -translate-y-1/2 text-[#8e8e8e] peer-focus:text-white text-sm pointer-events-none" />
-                       {errors.fullName && (
-                        <p className="absolute left-0 bottom-[-18px] tracking-wider geist-font text-red-500 text-[10px]">
-                            {errors.fullName.message}
-                            </p>
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+                    <div className="flex gap-3">
+                        <div className="relative flex-1">
+                            <label htmlFor="firstName-input" className="text-[#8e8e8e] geist-font text-sm font-[475]">First Name</label>
+                            <input {...register("firstName", { required: "First name is required" })} id="firstName-input" type="text" className="peer text-white text-sm pl-10 pr-2 h-9 w-full bg-neutral-950 border-[#282828] border-[2px] rounded-lg focus:border-[rgba(174,58,58,0.4)] focus:outline-none" />
+                            <IoPersonOutline className="absolute left-[10px] top-[72%] -translate-y-1/2 text-[#8e8e8e] peer-focus:text-white text-sm pointer-events-none" />
+                            {errors.firstName && (
+                                <p className="absolute left-0 bottom-[-18px] tracking-wider geist-font text-red-500 text-[10px]">
+                                    {errors.firstName.message}
+                                </p>
                             )}
+                        </div>
+                        <div className="relative flex-1">
+                            <label htmlFor="lastName-input" className="text-[#8e8e8e] geist-font text-sm font-[475]">Last Name</label>
+                            <input {...register("lastName", { required: "Last name is required" })} id="lastName-input" type="text" className="peer text-white text-sm pl-3 pr-2 h-9 w-full bg-neutral-950 border-[#282828] border-[2px] rounded-lg focus:border-[rgba(174,58,58,0.4)] focus:outline-none geist-font" />
+                            {errors.lastName && (
+                                <p className="absolute left-0 bottom-[-18px] tracking-wider geist-font text-red-500 text-[10px]">
+                                    {errors.lastName.message}
+                                </p>
+                            )}
+                        </div>
                     </div>
 
 
                     <div className="relative">
-                        <label htmlFor="email-input" className="text-[#8e8e8e] geist-font text-sm font-[375]">Email</label>
+                        <label htmlFor="email-input" className="text-[#8e8e8e] geist-font text-sm font-[475]">Email</label>
                         <input {...register("userEmail", { required: "Email is required" })} id="email-input" type="email" className="peer text-white text-sm pl-10 pr-2 h-9 w-full bg-neutral-950 border-[#282828] border-[2px] rounded-lg focus:border-[rgba(174,58,58,0.4)] focus:outline-none" />
                         <MdOutlineMailOutline className="absolute left-[10px] top-[72%] transform -translate-y-1/2 text-[#8e8e8e] peer-focus:text-white text-sm pointer-events-none" />
                         {errors.userEmail && (
@@ -78,11 +118,15 @@ export default function SignUpContainer() {
                     </div>
 
                     <div className="relative">
-                        <label htmlFor="password-input" className="text-[#8e8e8e] geist-font text-sm font-[375]">Password</label>
+                        <label htmlFor="password-input" className="text-[#8e8e8e] geist-font text-sm font-[475]">Password</label>
                         <input
                             id="password-input"
                             type={showPassword ? "text" : "password"}
-                            {...register("userPassword", { required: "Password is required", minLength: { value: 8, message: "Minimum length is 8" } })}
+                            {...register("userPassword", { 
+                                required: "Password is required", 
+                                minLength: { value: 8, message: "Minimum length is 8" },
+                                validate: validatePassword
+                            })}
                             className="peer text-white text-sm pl-10 pr-10 h-9 w-full bg-neutral-950 border-[#282828] border-[2px] rounded-lg focus:border-[rgba(174,58,58,0.4)] focus:outline-none"
                         />
                         <TbLockPassword className="absolute left-[10px] top-[70%] -translate-y-1/2 text-[#8e8e8e] peer-focus:text-white text-sm pointer-events-none" />
@@ -101,7 +145,7 @@ export default function SignUpContainer() {
                     </div>
 
                     <div className="relative">
-                        <button disabled={isSubmitting} className="text-white bg-[#EF6262] w-full h-[35px] rounded-[6px] tracking-wider geist-font font-[250] text-[13px] mt-4 cursor-pointer transition-all duration-200 origin-center will-change-transform hover:scale-105 hover:bg-[#C04A4A] hover:shadow-[0_2px_12px_0_rgba(192,74,74,0.25)]">
+                        <button disabled={isSubmitting} className="text-white bg-[#EF6262] w-full h-[35px] rounded-[6px] tracking-wider geist-font font-[250] text-[13px] mt-4 cursor-pointer transition-all duration-200 origin-center will-change-transform hover:bg-[#C04A4A] hover:shadow-[0_2px_12px_0_rgba(192,74,74,0.25)]">
                             {isSubmitting ? "Creating account..." : "Create Account"} </button>
                         {errors.root && (
                             <p className="absolute left-0 right-0 top-full mt-2 tracking-wider geist-font text-red-500 text-[10px] text-center pointer-events-none" aria-live="polite" aria-atomic="true">
@@ -123,10 +167,10 @@ export default function SignUpContainer() {
                 </div>
 
                 <div className="flex flex-row gap-4 mt-7">
-                    <button className="flex items-center justify-center h-[34px] w-55 border-[2px] border-[#222222] rounded-lg shadow-sm bg-neutral-950 hover:bg-neutral-900 transition-all duration-200 cursor-pointer">
+                    <button aria-label="Sign up with Google" className="flex items-center justify-center h-[34px] w-55 border-[2px] border-[#222222] rounded-lg shadow-sm bg-neutral-950 hover:bg-neutral-900 transition-all duration-200 cursor-pointer">
                         <img src={googleLogo} alt="Google logo" className="h-4 w-4" />
                     </button>
-                    <button className="flex items-center justify-center h-[34px] w-55 border-[2px] border-[#222222] rounded-lg shadow-sm bg-neutral-950 hover:bg-neutral-900 transition-all duration-200 cursor-pointer">
+                    <button aria-label="Sign up with Microsoft" className="flex items-center justify-center h-[34px] w-55 border-[2px] border-[#222222] rounded-lg shadow-sm bg-neutral-950 hover:bg-neutral-900 transition-all duration-200 cursor-pointer">
                         <img src={microsoftLogo} alt="Microsoft logo" className="h-4 w-4" />
                     </button>
                 </div>

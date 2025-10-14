@@ -1,14 +1,13 @@
-import SiteHeader from './components/SiteHeader'
-import SiteFooter from './components/SiteFooter'
-import SignUpContainer from './features/SignUp/SignUpPage'
+import { AuthProvider } from './context/AuthContext'
+import SignUpPage from './features/SignUp/SignUpPage'
 
 function App() {
   return (
-      <div className="bg-black min-h-screen flex flex-col items-center gap-10">
-        <SiteHeader />
-        <SignUpContainer />
-        <SiteFooter />
+     <AuthProvider>
+      <div className="bg-black min-h-screen flex flex-col items-center justify-center gap-10">
+        <SignUpPage />
       </div>
+    </AuthProvider>
   )
 }
 
