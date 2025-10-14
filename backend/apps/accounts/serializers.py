@@ -1,7 +1,11 @@
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
+from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
+
+if TYPE_CHECKING:
+    from django.contrib.auth.base_user import AbstractBaseUser
 
 from .models import User
 
@@ -52,19 +56,50 @@ class UserLoginSerializer(serializers.ModelSerializer):
     """
     Serializer for user login.
 
-    TODO: Implement this serializer with:
-    - Email validation
-    - Password validation
+    Validates:
+    - presence of email/password
+    - normalizes email
+    - authenticates against the backend
     """
 
     email = serializers.EmailField()
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True, trim_whitespace=False)
+
+    # Set after successful validation
+    user: User | None = None
 
     class Meta:
         model = User
         fields = ["email", "password"]
 
-    # TODO: Add validation methods
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
+        email_raw = attrs.get("email")
+        password = attrs.get("password")
+
+        if not email_raw:
+            raise serializers.ValidationError({"email": "This field is required."})
+        if not password:
+            raise serializers.ValidationError({"password": "This field is required."})
+
+        email = str(email_raw).strip().lower()
+
+        request = self.context.get("request")
+        auth_user: AbstractBaseUser | None = authenticate(
+            request, username=email, password=password
+        )
+
+        if not auth_user:
+            raise serializers.ValidationError({"detail": "Invalid credentials."})
+        if not auth_user.is_active:
+            raise serializers.ValidationError({"detail": "User inactive."})
+
+        # Ensure it’s our custom User model
+        if not isinstance(auth_user, User):
+            raise serializers.ValidationError({"detail": "Invalid credentials."})
+
+        self.user = auth_user  # mypy is satisfied after isinstance() narrowing
+        attrs["email"] = email  # normalized
+        return attrs
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

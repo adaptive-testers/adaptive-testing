@@ -1,10 +1,10 @@
-from typing import Any
+from typing import Any, cast
 
 from django.contrib.auth import authenticate  # noqa: F401
-from django.http import HttpRequest
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -17,7 +17,7 @@ from .serializers import (  # noqa: F401
 
 # TODO: Create serializers.py file with these serializers:
 # - UserRegistrationSerializer DONE
-# - UserLoginSerializer
+# - UserLoginSerializer DONE
 # - UserProfileSerializer
 
 
@@ -63,7 +63,7 @@ class UserRegistrationView(generics.CreateAPIView):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def user_login_view(request: HttpRequest) -> Response: # noqa: ARG001
+def user_login_view(request: Request) -> Response: # noqa: ARG001
     """
     User login endpoint.
 
@@ -73,16 +73,42 @@ def user_login_view(request: HttpRequest) -> Response: # noqa: ARG001
         "password": "securepassword"
     }
     """
-    # TODO: Implement user login logic
-    # 1. Validate credentials
-    # 2. Generate JWT tokens
-    # 3. Return user data + tokens
-    return Response({"message": "Not implemented"}, status=status.HTTP_501_NOT_IMPLEMENTED)
+    email_raw = request.data.get("email")
+    password = request.data.get("password")
+
+    errors: dict[str, list[str]] = {}
+    if not email_raw:
+        errors.setdefault("email", []).append("This field is required.")
+    if not password:
+        errors.setdefault("password", []).append("This field is required.")
+    if errors:
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+    email = str(email_raw).strip().lower()
+
+    authed = authenticate(request, username=email, password=password)
+    if not authed:
+        return Response({"detail": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
+
+    if not authed.is_active:
+        return Response({"detail": "User inactive."}, status=status.HTTP_403_FORBIDDEN)
+
+    user = cast("User", authed)
+    refresh = RefreshToken.for_user(user)
+    data = {
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "role": user.role,
+        "tokens": {"refresh": str(refresh), "access": str(refresh.access_token)},
+    }
+
+    return Response(data, status=status.HTTP_200_OK)
 
 
 @api_view(["GET", "PUT"])
 @permission_classes([IsAuthenticated])
-def user_profile_view(request: HttpRequest) -> Response: # noqa: ARG001
+def user_profile_view(request: Request) -> Response: # noqa: ARG001
     """
     User profile endpoint.
 
