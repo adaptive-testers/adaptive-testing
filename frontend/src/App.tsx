@@ -1,6 +1,6 @@
 import SiteHeader from './components/SiteHeader'
-import SignUpContainer from './features/SignUp/SignUpPage'
 import SiteFooter from './components/SiteFooter'
+import SignUpContainer from './features/SignUp/SignUpPage'
 
 function App() {
   return (

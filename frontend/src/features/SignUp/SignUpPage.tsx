@@ -1,21 +1,20 @@
-import { MdOutlineMailOutline } from "react-icons/md";
-import { IoPersonOutline } from "react-icons/io5";
-import { TbLockPassword } from "react-icons/tb";
-import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
-import microsoftLogo from "../../assets/microsoftLogo.png";
-import googleLogo from "../../assets/googleLogo.png";
-
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
+
+import { MdOutlineMailOutline } from "react-icons/md";
+import { IoPersonOutline, IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
+import { TbLockPassword } from "react-icons/tb";
+
+import microsoftLogo from "../../assets/microsoftLogo.png";
+import googleLogo from "../../assets/googleLogo.png";
 import { publicApi } from "../../api/axios";
 
-type FormFields = {
+interface FormFields {
     fullName: string;
     userEmail: string;
     userPassword: string;
-};
+}
 
 
 export default function SignUpContainer() {
@@ -133,7 +132,7 @@ export default function SignUpContainer() {
                 </div>
 
                 <div className="geist-font text-[12px] font-[150] tracking-wider mt-10 flex justify-center">
-                    <p className="text-white">Already have an account? <a href="/login" className="text-[#EF6262] font-bold transition-all duration-500 hover:underline">Log in</a></p>
+                    <p className="text-white">Already have an account? <a href="/login" className="text-[#EF6262] transition-all duration-500 hover:underline">Log in</a></p>
                 </div>
 
 
