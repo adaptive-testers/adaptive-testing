@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from apps.accounts.models import User, UserRole
 
 # Type alias for the User model
-UserModel = cast(type[User], get_user_model())
+UserModel = cast("type[User]", get_user_model())
 
 
 @pytest.fixture

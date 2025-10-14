@@ -2,7 +2,6 @@ import { AuthProvider } from './context/AuthContext'
 import SignUpPage from './features/SignUp/SignUpPage'
 import './index.css'
 
-
 function App() {
   return (
      <AuthProvider>
