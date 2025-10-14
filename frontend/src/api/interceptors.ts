@@ -30,8 +30,8 @@ export const initializeAuthInterceptors = (
 ) => {
   authFunctions = { getAccessToken, setAccessToken, navigate };
 
-  // Add the request interceptor
-  privateApi.interceptors.request.use(
+  // Add the request interceptor and store its ID
+  const requestInterceptorId = privateApi.interceptors.request.use(
     (config) => {
       if (!config.headers['Authorization'] && authFunctions) {
         const accessToken = authFunctions.getAccessToken();
@@ -44,8 +44,8 @@ export const initializeAuthInterceptors = (
     (error) => Promise.reject(error)
   );
 
-  // Add the response interceptor
-  privateApi.interceptors.response.use(
+  // Add the response interceptor and store its ID
+  const responseInterceptorId = privateApi.interceptors.response.use(
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
@@ -79,6 +79,7 @@ export const initializeAuthInterceptors = (
           }
         } catch (refreshError) {
           // If refresh fails, log out the user and clear the queue
+          //  Call the logout backend endpoint
           if (authFunctions) {
             authFunctions.setAccessToken(null);
             processQueue(refreshError instanceof Error ? refreshError : new Error('Token refresh failed'), null);
@@ -93,6 +94,13 @@ export const initializeAuthInterceptors = (
       return Promise.reject(error);
     }
   );
+
+  // Return cleanup function to eject both interceptors
+  return () => {
+    privateApi.interceptors.request.eject(requestInterceptorId);
+    privateApi.interceptors.response.eject(responseInterceptorId);
+    authFunctions = null; // Clear auth functions reference
+  };
 };
 
 // Export the configured privateApi
