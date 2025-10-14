@@ -57,7 +57,7 @@ export default function SignUpContainer() {
                 setAccessToken(response.data.tokens.access);
             }
 
-            console.log("Account created successfully:", response.data);
+            
             
         }
         catch (error){
