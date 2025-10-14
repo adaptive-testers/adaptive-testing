@@ -67,7 +67,7 @@ export const initializeAuthInterceptors = (
 
         try {
           // Attempt to refresh the token using a public endpoint
-          const response = await publicApi.post('/token/refresh');
+          const response = await publicApi.post('/auth/token/refresh');
           const newAccessToken = response.data.tokens.access;
           
           if (authFunctions) {
