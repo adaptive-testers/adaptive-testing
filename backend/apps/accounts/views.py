@@ -95,8 +95,30 @@ def user_profile_view(request: HttpRequest) -> Response: # noqa: ARG001
     return Response({"message": "Not implemented"}, status=status.HTTP_501_NOT_IMPLEMENTED)
 
 # TODO: Implement these endpoints:
-# - User logout
+# - User logout done?
 # - User password change
 # - User password reset
 # - User email verification
 # - User OAuth endpoints (Google, Microsoft)
+
+@api_view["POST"]
+@permission_classes([IsAuthenticated])
+def user_logout_view(request):
+    """
+    User logout endpoint.
+
+    POST /api/auth/logout/
+    Body: {
+        "refresh": "<refresh_token>"
+    }
+
+    """
+    try:
+        refresh_token = request.data["refresh"]
+        token = RefreshToken(refresh_token)
+        token.blacklist()  # mark token as invalid
+        return Response({"message": "Successfully logged out."}, status=status.HTTP_205_RESET_CONTENT)
+    except KeyError:
+        return Response({"error": "Refresh token required."}, status=status.HTTP_400_BAD_REQUEST)
+    except TokenError:
+        return Response({"error": "Invalid or expired token."}, status=status.HTTP_400_BAD_REQUEST)
