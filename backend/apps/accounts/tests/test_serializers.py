@@ -1,49 +1,140 @@
-"""
-Tests for the UserRegistrationSerializer.
-"""
-
 from typing import TYPE_CHECKING, cast
 
 import pytest
 from django.contrib.auth import get_user_model
 
-from apps.accounts.serializers import UserRegistrationSerializer
-
 if TYPE_CHECKING:
     from apps.accounts.models import User
 
-# Type alias for the User model
+from apps.accounts.serializers import (
+    UserLoginSerializer,
+    UserRegistrationSerializer,
+)
+
 UserModel = cast("type[User]", get_user_model())
 
 pytestmark = pytest.mark.django_db
 
 
-@pytest.fixture
-def valid_registration_data():
-    """Fixture providing valid user registration data."""
-    return {
-        "email": "test@example.com",
-        "first_name": "John",
-        "last_name": "Doe",
-        "password": "SecurePass123",
-        "role": "student"
-    }
+# ===============================
+# UserLoginSerializer tests
+# ===============================
+class TestUserLoginSerializer:
+    """Test cases for UserLoginSerializer."""
+
+    @pytest.fixture
+    def active_user(self):
+        """Fixture creating an active user for login tests."""
+        return UserModel.objects.create_user(
+            email="login@example.com",
+            password="StrongP@ssw0rd!",
+            first_name="Log",
+            last_name="In",
+            role="student",
+        )
 
 
-@pytest.fixture
-def existing_user():
-    """Fixture creating an existing user for duplicate email tests."""
-    return UserModel.objects.create_user(
-        email="existing@example.com",
-        first_name="Existing",
-        last_name="User",
-        password="testpass123",
-        role="instructor"
-    )
+    def test_missing_email_returns_validation_error(self):
+        """Test that missing email field returns validation error."""
+        serializer = UserLoginSerializer(
+            data={"password": "somepassword"}, context={"request": None}
+        )
+        assert not serializer.is_valid()
+        assert "email" in serializer.errors
+        assert "This field is required." in str(serializer.errors["email"])
+
+    def test_missing_password_returns_validation_error(self):
+        """Test that missing password field returns validation error."""
+        serializer = UserLoginSerializer(
+            data={"email": "test@example.com"}, context={"request": None}
+        )
+        assert not serializer.is_valid()
+        assert "password" in serializer.errors
+        assert "This field is required." in str(serializer.errors["password"])
+
+    def test_missing_both_fields_returns_validation_errors(self):
+        """Test that missing both email and password fields return validation errors."""
+        serializer = UserLoginSerializer(data={}, context={"request": None})
+        assert not serializer.is_valid()
+        assert "email" in serializer.errors and "password" in serializer.errors
+
+    def test_invalid_credentials_returns_detail_error(self):
+        """Test that invalid credentials return detail error."""
+        UserModel.objects.create_user(
+            email="badpass@example.com",
+            password="CorrectPass123!",
+            first_name="Bad",
+            last_name="Cred",
+            role="student",
+        )
+        serializer = UserLoginSerializer(
+            data={"email": "badpass@example.com", "password": "wrong"},
+            context={"request": None},
+        )
+        assert not serializer.is_valid()
+        assert "detail" in serializer.errors
+        assert "Invalid credentials." in str(serializer.errors["detail"])
+
+    def test_inactive_user_is_rejected(self):
+        """Test that inactive users are rejected with appropriate error."""
+        # Create an inactive user
+        UserModel.objects.create_user(
+            email="inactive@example.com",
+            password="StrongP@ssw0rd!",
+            first_name="Ina",
+            last_name="Ctive",
+            role="student",
+        )
+        user = UserModel.objects.get(email="inactive@example.com")
+        user.is_active = False
+        user.save(update_fields=["is_active"])
+
+        serializer = UserLoginSerializer(
+            data={"email": "inactive@example.com", "password": "StrongP@ssw0rd!"},
+            context={"request": None},
+        )
+        assert not serializer.is_valid()
+        assert "detail" in serializer.errors
+        # Django's authenticate() returns None for inactive users, so we get "Invalid credentials"
+        assert "Invalid credentials." in str(serializer.errors["detail"])
+
+    def test_nonexistent_user_returns_invalid_credentials(self):
+        """Test that non-existent users return invalid credentials error."""
+        serializer = UserLoginSerializer(
+            data={"email": "nonexistent@example.com", "password": "somepassword"},
+            context={"request": None},
+        )
+        assert not serializer.is_valid()
+        assert "detail" in serializer.errors
+        assert "Invalid credentials." in str(serializer.errors["detail"])
+
+    def test_valid_credentials_normalizes_email_and_sets_user(self, active_user):
+        """Test that valid credentials normalize email and set user attribute."""
+        serializer = UserLoginSerializer(
+            data={"email": "  LOGIN@EXAMPLE.COM  ", "password": "StrongP@ssw0rd!"},
+            context={"request": None},
+        )
+        assert serializer.is_valid(), serializer.errors
+        assert serializer.validated_data["email"] == "login@example.com"
+        assert getattr(serializer, "user", None) == active_user
 
 
+# ===============================
+# UserRegistrationSerializer tests
+# ===============================
 class TestUserRegistrationSerializer:
     """Test cases for UserRegistrationSerializer."""
+
+    @pytest.fixture
+    def valid_registration_data(self):
+        """Fixture providing valid user registration data."""
+        return {
+            "email": "test@example.com",
+            "first_name": "John",
+            "last_name": "Doe",
+            "password": "SecurePass123",
+            "role": "student",
+        }
 
     def test_valid_registration_data(self, valid_registration_data):
         """Test serializer with valid data creates user successfully."""
