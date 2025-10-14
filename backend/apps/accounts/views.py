@@ -63,7 +63,7 @@ class UserRegistrationView(generics.CreateAPIView):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def user_login_view(request: Request) -> Response: # noqa: ARG001
+def user_login_view(request: Request) -> Response:
     """
     User login endpoint.
 
@@ -73,19 +73,10 @@ def user_login_view(request: Request) -> Response: # noqa: ARG001
         "password": "securepassword"
     }
     """
-    email_raw = request.data.get("email")
-    password = request.data.get("password")
-
-    errors: dict[str, list[str]] = {}
-    if not email_raw:
-        errors.setdefault("email", []).append("This field is required.")
-    if not password:
-        errors.setdefault("password", []).append("This field is required.")
-    if errors:
-        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
-
-    email = str(email_raw).strip().lower()
-
+    serializer = UserLoginSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    email = serializer.validated_data["email"].strip().lower()
+    password = serializer.validated_data["password"]
     authed = authenticate(request, username=email, password=password)
     if not authed:
         return Response({"detail": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
@@ -93,7 +84,7 @@ def user_login_view(request: Request) -> Response: # noqa: ARG001
     if not authed.is_active:
         return Response({"detail": "User inactive."}, status=status.HTTP_403_FORBIDDEN)
 
-    user = cast("User", authed)
+    user = authed
     refresh = RefreshToken.for_user(user)
     data = {
         "email": user.email,
@@ -108,7 +99,7 @@ def user_login_view(request: Request) -> Response: # noqa: ARG001
 
 @api_view(["GET", "PUT"])
 @permission_classes([IsAuthenticated])
-def user_profile_view(request: Request) -> Response: # noqa: ARG001
+def user_profile_view(request: Request) -> Response:
     """
     User profile endpoint.
 

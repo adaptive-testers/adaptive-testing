@@ -76,11 +76,6 @@ class UserLoginSerializer(serializers.ModelSerializer):
         email_raw = attrs.get("email")
         password = attrs.get("password")
 
-        if not email_raw:
-            raise serializers.ValidationError({"email": "This field is required."})
-        if not password:
-            raise serializers.ValidationError({"password": "This field is required."})
-
         email = str(email_raw).strip().lower()
 
         request = self.context.get("request")
