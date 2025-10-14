@@ -167,10 +167,10 @@ export default function SignUpContainer() {
                 </div>
 
                 <div className="flex flex-row gap-4 mt-7">
-                    <button className="flex items-center justify-center h-[34px] w-55 border-[2px] border-[#222222] rounded-lg shadow-sm bg-neutral-950 hover:bg-neutral-900 transition-all duration-200 cursor-pointer">
+                    <button aria-label="Sign up with Google" className="flex items-center justify-center h-[34px] w-55 border-[2px] border-[#222222] rounded-lg shadow-sm bg-neutral-950 hover:bg-neutral-900 transition-all duration-200 cursor-pointer">
                         <img src={googleLogo} alt="Google logo" className="h-4 w-4" />
                     </button>
-                    <button className="flex items-center justify-center h-[34px] w-55 border-[2px] border-[#222222] rounded-lg shadow-sm bg-neutral-950 hover:bg-neutral-900 transition-all duration-200 cursor-pointer">
+                    <button aria-label="Sign up with Microsoft" className="flex items-center justify-center h-[34px] w-55 border-[2px] border-[#222222] rounded-lg shadow-sm bg-neutral-950 hover:bg-neutral-900 transition-all duration-200 cursor-pointer">
                         <img src={microsoftLogo} alt="Microsoft logo" className="h-4 w-4" />
                     </button>
                 </div>
