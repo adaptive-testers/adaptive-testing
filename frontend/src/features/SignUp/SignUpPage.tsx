@@ -65,6 +65,7 @@ export default function SignUpContainer() {
             setError("root", {
                 message: "An error occurred while creating your account.",
             });
+            console.log(error)
         }
         
     };
