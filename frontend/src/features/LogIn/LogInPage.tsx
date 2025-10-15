@@ -153,10 +153,6 @@ export default function LogInContainer() {
                       onClick={() => setShowPassword((v) => !v)}
                       className="w-[16px] h-[13px] mx-auto scale-125 text-[#8e8e8e] text-sm cursor-pointer hover:text-white transition-colors duration-300 bg-transparent border-none p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ae3a3a] rounded"
                     >
-                      {!showPassword && (
-                        <span className="sr-only">Show password</span>
-                      )}
-
                       {showPassword ? (
                         <IoEyeOutline aria-hidden="true" focusable="false" />
                       ) : (
@@ -177,6 +173,8 @@ export default function LogInContainer() {
                 <div className="Frame-39 flex items-center gap-[8px] w-[140px] h-[16px] text-[#8E8E8E] transition duration-300 ease-in-out hover:scale-101 hover:text-white cursor-pointer">
                   <button
                     type="button"
+                    aria-pressed={keepSignedIn}
+                    aria-label="Keep me signed in"
                     onClick={() =>
                       setValue("keepSignedIn", !keepSignedIn, {
                         shouldDirty: true,
@@ -185,8 +183,8 @@ export default function LogInContainer() {
                     className={`flex items-center gap-[10px] w-[14px] h-[14px] p-[3px] rounded-[4px] border border-[#282828] ${
                       keepSignedIn ? "bg-[#EF6262]" : "bg-[#0A0A0A]"
                     }`}
-                    aria-pressed={keepSignedIn}
-                  ></button>
+                  />
+
                   <button
                     type="button"
                     onClick={() =>
