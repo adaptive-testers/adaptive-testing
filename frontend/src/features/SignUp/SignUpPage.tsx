@@ -187,17 +187,7 @@ export default function SignUpContainer() {
                 <div className="geist-font text-[12px] font-[150] tracking-wider mt-10 flex justify-center">
                     <p className="text-primary-text">Already have an account? <a href="/login" className="text-primary-accent transition-all duration-500 hover:underline">Log in</a></p>
                 </div>
-
-
-
             </div>
-
-
-
-
         </div>
-
     </>
-
-
 }
