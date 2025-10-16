@@ -83,6 +83,7 @@ export const initializeAuthInterceptors = (
             await publicApi.post('/auth/logout');
           } catch (logoutError) {
             // Optionally log the error, but continue with local logout
+            console.log(logoutError)
           }
           if (authFunctions) {
             authFunctions.setAccessToken(null);
