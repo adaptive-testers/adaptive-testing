@@ -79,7 +79,11 @@ export const initializeAuthInterceptors = (
           }
         } catch (refreshError) {
           // If refresh fails, log out the user and clear the queue
-          //  Call the logout backend endpoint
+          try {
+            await publicApi.post('/auth/logout');
+          } catch (logoutError) {
+            // Optionally log the error, but continue with local logout
+          }
           if (authFunctions) {
             authFunctions.setAccessToken(null);
             processQueue(refreshError instanceof Error ? refreshError : new Error('Token refresh failed'), null);
