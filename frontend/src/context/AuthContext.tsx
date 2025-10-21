@@ -1,6 +1,6 @@
 // src/context/AuthContext.tsx
 
-import { createContext, useState, useContext, type ReactNode } from 'react';
+import { createContext, useState, useContext, type ReactNode } from "react";
 
 // Define the shape of our context state
 interface AuthContextType {
@@ -14,14 +14,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
 
 // Provider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [accessToken, setAccessTokenState] = useState<string | null>(null);
+
+  const setAccessToken = (token: string | null) => {
+    setAccessTokenState(token);
+  };
 
   return (
     <AuthContext.Provider value={{ accessToken, setAccessToken }}>

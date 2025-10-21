@@ -10,7 +10,7 @@ export const useAuthInterceptors = () => {
 
   useEffect(() => {
     // Initialize interceptors with auth functions
-    initializeAuthInterceptors(
+    const cleanup = initializeAuthInterceptors(
       () => accessToken, // getAccessToken function
       setAccessToken,    // setAccessToken function
       (path: string) => {
@@ -18,5 +18,8 @@ export const useAuthInterceptors = () => {
         window.location.href = path;
       }
     );
+
+    // Return cleanup function to remove interceptors
+    return cleanup;
   }, [accessToken, setAccessToken]);
 };
