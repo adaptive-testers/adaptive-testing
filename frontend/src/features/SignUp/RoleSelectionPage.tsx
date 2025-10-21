@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { FaChalkboardTeacher } from 'react-icons/fa'
 import { TbSchool } from 'react-icons/tb'
 
 export default function RoleSelectionPage() {
     const [selectedRole, setSelectedRole] = useState<'student' | 'instructor' | null>(null)
+    const navigate = useNavigate()
 
     const handleRoleSelect = (role: 'student' | 'instructor') => {
         setSelectedRole(role)
@@ -12,7 +14,7 @@ export default function RoleSelectionPage() {
     const handleContinue = () => {
         if (selectedRole) {
             console.log('Selected role:', selectedRole)
-            // TODO: Navigate to next step or handle role selection
+            navigate('/signup', { state: { role: selectedRole } })
         }
     }
 

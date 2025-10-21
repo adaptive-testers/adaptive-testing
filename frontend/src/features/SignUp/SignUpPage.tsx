@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { IoPersonOutline } from "react-icons/io5";
@@ -23,7 +24,17 @@ export default function SignUpContainer() {
     const {register, handleSubmit, setError, formState: { errors, isSubmitting }} = useForm<FormFields>();
     const { setAccessToken } = useAuth();
 
-    const [showPassword, setShowPassword] = useState(false);
+   const [showPassword, setShowPassword] = useState(false);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const selectedRole = (location.state as { role?: string } | null)?.role ?? null;
+
+    useEffect(() => {
+        if (!selectedRole) {
+            // If arrived directly, send back to role selection
+            navigate("/", { replace: true });
+        }
+    }, [selectedRole, navigate]);
 
     // Password validation function
     const validatePassword = (password: string) => {
@@ -41,33 +52,39 @@ export default function SignUpContainer() {
 
     const handlePasswordToggle = () => setShowPassword((prev) => !prev);
 
-    const onSubmit: SubmitHandler<FormFields> = async (data) => {
-        try {
+   const onSubmit: SubmitHandler<FormFields> = async (data) => {
+         try {
+            if (!selectedRole) {
+                // if role is missing, redirect back
+                navigate("/", { replace: true });
+                return;
+            }
+
             const registrationData = {
                 email: data.userEmail,
                 first_name: data.firstName,
                 last_name: data.lastName,
                 password: data.userPassword,
-                role: "student"
+                role: selectedRole
             };
 
             const response = await publicApi.post("/auth/register/", registrationData);
-            
+             
             if (response.data.tokens?.access) {
                 setAccessToken(response.data.tokens.access);
             }
 
-            
-            
-        }
-        catch (error){
-            setError("root", {
-                message: "An error occurred while creating your account.",
-            });
-            console.log(error)
-        }
-        
-    };
+            // navigate after successful signup
+            navigate("/");
+         }
+         catch (error){
+             setError("root", {
+                 message: "An error occurred while creating your account.",
+             });
+             console.log(error)
+         }
+         
+     };
 
 
     return <>
