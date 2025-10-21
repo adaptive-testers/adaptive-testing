@@ -191,6 +191,11 @@ CORS_ALLOWED_ORIGINS = config(
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 
+# Cookie Security Settings
+# Controls whether cookies are sent only over HTTPS
+# Defaults to True in production (when DEBUG=False), False in development
+COOKIE_SECURE = config("COOKIE_SECURE", default=not DEBUG, cast=bool)
+
 # Email Configuration (for password reset, etc.)
 EMAIL_BACKEND = (
     "django.core.mail.backends.console.EmailBackend"

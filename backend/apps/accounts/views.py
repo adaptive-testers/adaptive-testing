@@ -17,8 +17,6 @@ from .serializers import (
     UserRegistrationSerializer,
 )
 
-
-
 # TODO: Create serializers.py file with these serializers:
 # - UserRegistrationSerializer DONE
 # - UserLoginSerializer DONE
@@ -120,7 +118,7 @@ def user_login_view(request: Request) -> Response:
 
 @api_view(["GET", "PUT"])
 @permission_classes([IsAuthenticated])
-def user_profile_view(request: Request) -> Response:
+def user_profile_view(request: Request) -> Response: #noqa: ARG001
     """
     User profile endpoint.
 
@@ -180,7 +178,7 @@ def user_logout_view(request: Request) -> Response:
             # Create RefreshToken instance and blacklist it
             token = RefreshToken(refresh_cookie)  # type: ignore[arg-type]
             token.blacklist()
-        except (TokenError, Exception):
+        except TokenError:
             # Token is invalid or already blacklisted, that's fine
             pass
 
@@ -193,7 +191,7 @@ def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
     lifetime = settings.SIMPLE_JWT.get("REFRESH_TOKEN_LIFETIME")
     max_age = int(lifetime.total_seconds()) if lifetime else None
 
-    secure = not getattr(settings, "DEBUG", False)
+    secure = getattr(settings, "COOKIE_SECURE", True)
     # Path limited to auth endpoints
     response.set_cookie(
         key="refresh_token",
