@@ -260,7 +260,7 @@ describe("SignUpPage", () => {
 
         it("error message has proper accessibility attributes", async () => {
             const user = userEvent.setup()
-            vi.mocked(publicApi.post).mockRejectedValue(new Error("Network error"))
+            vi.mocked(publicApi.post).mockRejectedValueOnce(new Error("Network error"))
             
             render(<SignUpPage />)
             
@@ -274,8 +274,9 @@ describe("SignUpPage", () => {
             
             await waitFor(() => {
                 const errorMessage = screen.getByText("An error occurred while creating your account.")
+                const alertContainer = errorMessage.closest('[role="alert"]')
+                expect(alertContainer).toBeInTheDocument()
                 expect(errorMessage).toHaveAttribute("aria-live", "polite")
-                expect(errorMessage).toHaveAttribute("aria-atomic", "true")
             })
         })
     })

@@ -166,9 +166,11 @@ export default function SignUpContainer() {
                         <button disabled={isSubmitting} className="text-primary-text bg-primary-accent w-full h-[35px] rounded-[6px] tracking-wider geist-font font-[250] text-[13px] mt-4 cursor-pointer transition-all duration-200 origin-center will-change-transform hover:bg-primary-accent-hover hover:shadow-[0_2px_12px_0_rgba(192,74,74,0.25)]">
                             {isSubmitting ? "Creating account..." : "Create Account"} </button>
                         {errors.root && (
-                            <p className="absolute left-0 right-0 top-full mt-2 tracking-wider geist-font text-error-text text-[10px] text-center pointer-events-none" aria-live="polite" aria-atomic="true">
-                                {errors.root.message}
-                            </p>
+                            <div className="absolute left-0 right-0 top-full mt-2" role="alert">
+                                <p className="tracking-wider geist-font text-error-text text-[10px] text-center" aria-live="polite">
+                                    {errors.root.message}
+                                </p>
+                            </div>
                         )}
                     </div>
                             
