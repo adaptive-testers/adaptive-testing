@@ -18,45 +18,45 @@ export default function RoleSelectionPage() {
         }
     }
 
-    return (
-        <div className="bg-[#0A0A0A] w-[600px] h-[400px] border-[2px] border-[#282828] rounded-[15px] flex flex-col items-center justify-center p-6">
+     return (
+        <div className="bg-[var(--color-secondary-background)] w-[650px] h-[430px] border-[2px] border-[var(--color-primary-border)] rounded-[15px] flex flex-col items-center justify-center p-7">
                 {/* Title */}
-                <h1 className="text-white geist-font text-[28px] font-[480] mb-6 text-center">
+                <h1 className="text-[var(--color-primary-text)] geist-font text-[30px] font-[480] mb-7 text-center">
                     Select Your Role
                 </h1>
 
                 {/* Role Options */}
-                <div className="flex gap-6 mb-4 w-full max-w-lg">
+                <div className="flex gap-7 mb-5 w-full max-w-xl">
                     {/* Student Option */}
                     <div 
-                        className={`flex-1 bg-[#0A0A0A] border-[2px] border-[#282828] rounded-lg p-10 cursor-pointer transition-all duration-350 hover:border-[rgba(174,58,58,0.4)] group ${
-                            selectedRole === 'student' ? 'border-[rgba(174,58,58,0.4)] ' : ''
+                        className={`flex-1 bg-[var(--color-secondary-background)] border-[3px] border-[var(--color-primary-border)] rounded-lg p-11 cursor-pointer transition-all duration-350 hover:border-[rgb(174,58,58)] group ${
+                            selectedRole === 'student' ? 'border-[rgba(174,58,58,0.8)]' : ''
                         }`}
                         onClick={() => handleRoleSelect('student')}
                     >
                         <div className="flex flex-col items-center">
-                            <TbSchool className={`text-6xl mb-4 transition-colors duration-200 ${
-                                selectedRole === 'student' ? 'text-[#EF6262]' : 'text-[#8E8E8E] group-hover:text-[#EF6262]'
+                            <TbSchool className={`text-[4.5rem] mb-5 transition-colors duration-200 ${
+                                selectedRole === 'student' ? 'text-[var(--color-primary-accent)]' : 'text-[var(--color-secondary-text)] group-hover:text-[var(--color-primary-accent)]'
                             }`} />
                             <span className={`geist-font text-xl font-[450] transition-colors duration-200 ${
-                                selectedRole === 'student' ? 'text-white' : 'text-[#8E8E8E] group-hover:text-white'
+                                selectedRole === 'student' ? 'text-[var(--color-primary-text)]' : 'text-[var(--color-secondary-text)] group-hover:text-[var(--color-primary-text)]'
                             }`}>Student</span>
                         </div>
                     </div>
 
                     {/* Instructor Option */}
                     <div 
-                        className={`flex-1 bg-[#0A0A0A] border-[2px] border-[#282828] rounded-lg p-10 cursor-pointer transition-all duration-350 hover:border-[rgba(174,58,58,0.4)] group ${
-                            selectedRole === 'instructor' ? 'border-[rgba(174,58,58,0.4)]' : ''
+                        className={`flex-1 bg-[var(--color-secondary-background)] border-[3px] border-[var(--color-primary-border)] rounded-lg p-11 cursor-pointer transition-all duration-350 hover:border-[rgb(174,58,58)] group ${
+                            selectedRole === 'instructor' ? 'border-[rgba(174,58,58,0.8)]' : ''
                         }`}
                         onClick={() => handleRoleSelect('instructor')}
                     >
                         <div className="flex flex-col items-center">
-                            <FaChalkboardTeacher className={`text-6xl mb-4 transition-colors duration-200 ${
-                                selectedRole === 'instructor' ? 'text-[#EF6262]' : 'text-[#8E8E8E] group-hover:text-[#EF6262]'
+                            <FaChalkboardTeacher className={`text-[4.5rem] mb-5 transition-colors duration-200 ${
+                                selectedRole === 'instructor' ? 'text-[var(--color-primary-accent)]' : 'text-[var(--color-secondary-text)] group-hover:text-[var(--color-primary-accent)]'
                             }`} />
                             <span className={`geist-font text-xl font-[450] transition-colors duration-200 ${
-                                selectedRole === 'instructor' ? 'text-white' : 'text-[#8E8E8E] group-hover:text-white'
+                                selectedRole === 'instructor' ? 'text-[var(--color-primary-text)]' : 'text-[var(--color-secondary-text)] group-hover:text-[var(--color-primary-text)]'
                             }`}>Instructor</span>
                         </div>
                     </div>
@@ -67,8 +67,8 @@ export default function RoleSelectionPage() {
                     <button 
                         onClick={handleContinue}
                         disabled={!selectedRole}
-                        className={`text-white w-[105px] h-[35px] rounded-[6px] tracking-wider geist-font font-[250] text-[13px] mt-4 cursor-pointer transition-all duration-200 origin-center will-change-transform hover:bg-[#C04A4A] hover:shadow-[0_2px_12px_0_rgba(192,74,74,0.25)] ${
-                            !selectedRole ? 'bg-[#EF6262] cursor-not-allowed' : 'bg-[#EF6262]'
+                        className={`text-[var(--color-primary-text)] w-[115px] h-[38px] rounded-[7px] tracking-wider geist-font font-[250] text-[14px] mt-5 cursor-pointer transition-all duration-200 origin-center will-change-transform hover:bg-[var(--color-primary-accent-hover)] hover:shadow-[0_2px_12px_0_rgba(192,74,74,0.25)] ${
+                            !selectedRole ? 'bg-[var(--color-primary-accent)] cursor-not-allowed' : 'bg-[var(--color-primary-accent)]'
                         }`}
                     >
                         Continue
