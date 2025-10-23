@@ -268,3 +268,157 @@ class TestUserLoginView:
             format="json",
         )
         assert resp.status_code in (status.HTTP_403_FORBIDDEN, status.HTTP_401_UNAUTHORIZED)
+
+
+# =========================
+# Profile View Tests
+# =========================
+class TestUserProfileView:
+    """Test user profile endpoint functionality."""
+
+    def test_get_profile_success(self):
+        """Test that authenticated user can retrieve their profile."""
+        user = UserModel.objects.create_user(
+            email="profile@example.com",
+            password="StrongP@ssw0rd!",
+            first_name="Profile",
+            last_name="User",
+            role="student",
+        )
+
+        client = APIClient()
+        client.force_authenticate(user=user)
+        url = reverse("accounts:profile")
+        response = client.get(url)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["email"] == user.email
+        assert response.data["first_name"] == user.first_name
+        assert response.data["last_name"] == user.last_name
+        assert response.data["role"] == user.role
+        assert "created_at" in response.data
+
+    def test_get_profile_unauthorized(self):
+        """Test that unauthenticated user cannot access profile."""
+        client = APIClient()
+        url = reverse("accounts:profile")
+        response = client.get(url)
+
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_patch_profile_success(self):
+        """Test that user can update their profile."""
+        user = UserModel.objects.create_user(
+            email="update@example.com",
+            password="StrongP@ssw0rd!",
+            first_name="Original",
+            last_name="Name",
+            role="student",
+        )
+
+        client = APIClient()
+        client.force_authenticate(user=user)
+        url = reverse("accounts:profile")
+        update_data = {
+            "first_name": "Updated",
+            "last_name": "Name",
+        }
+        response = client.patch(url, update_data, format="json")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["first_name"] == "Updated"
+        assert response.data["last_name"] == "Name"
+        
+        # Verify the user was actually updated
+        user.refresh_from_db()
+        assert user.first_name == "Updated"
+        assert user.last_name == "Name"
+
+    def test_patch_profile_validation_errors(self):
+        """Test that profile update validates input properly."""
+        user = UserModel.objects.create_user(
+            email="validation@example.com",
+            password="StrongP@ssw0rd!",
+            first_name="Test",
+            last_name="User",
+            role="student",
+        )
+
+        client = APIClient()
+        client.force_authenticate(user=user)
+        url = reverse("accounts:profile")
+        
+        # Test empty first name
+        update_data = {"first_name": "   "}
+        response = client.patch(url, update_data, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "first_name" in response.data
+
+        # Test empty last name
+        update_data = {"last_name": ""}
+        response = client.patch(url, update_data, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "last_name" in response.data
+
+    def test_patch_profile_readonly_fields(self):
+        """Test that readonly fields cannot be updated."""
+        user = UserModel.objects.create_user(
+            email="readonly@example.com",
+            password="StrongP@ssw0rd!",
+            first_name="Test",
+            last_name="User",
+            role="student",
+        )
+
+        client = APIClient()
+        client.force_authenticate(user=user)
+        url = reverse("accounts:profile")
+        
+        # Try to update readonly fields
+        update_data = {
+            "email": "hacker@example.com",
+            "role": "admin",
+            "created_at": "2020-01-01T00:00:00Z",
+        }
+        response = client.patch(url, update_data, format="json")
+
+        # Should succeed but readonly fields should be ignored
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["email"] == user.email  # Should remain unchanged
+        assert response.data["role"] == user.role     # Should remain unchanged
+
+    def test_patch_profile_unauthorized(self):
+        """Test that unauthenticated user cannot update profile."""
+        client = APIClient()
+        url = reverse("accounts:profile")
+        update_data = {"first_name": "Hacker"}
+        response = client.patch(url, update_data, format="json")
+
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_patch_profile_partial_update(self):
+        """Test that partial updates work correctly."""
+        user = UserModel.objects.create_user(
+            email="partial@example.com",
+            password="StrongP@ssw0rd!",
+            first_name="Original",
+            last_name="Name",
+            role="student",
+        )
+
+        client = APIClient()
+        client.force_authenticate(user=user)
+        url = reverse("accounts:profile")
+        
+        # Update only first name
+        update_data = {"first_name": "Updated"}
+        response = client.patch(url, update_data, format="json")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["first_name"] == "Updated"
+        assert response.data["last_name"] == "Name"  # Should remain unchanged
+        
+        # Verify the user was actually updated
+        user.refresh_from_db()
+        assert user.first_name == "Updated"
+        assert user.last_name == "Name"  # Should remain unchanged
