@@ -1,6 +1,6 @@
 from typing import Any
 
-from django.contrib.auth import authenticate  # noqa: F401
+from django.contrib.auth import authenticate
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -14,11 +14,6 @@ from .serializers import (
     UserProfileSerializer,
     UserRegistrationSerializer,
 )
-
-# TODO: Create serializers.py file with these serializers:
-# - UserRegistrationSerializer DONE
-# - UserLoginSerializer DONE
-# - UserProfileSerializer
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -135,11 +130,7 @@ def user_profile_view(request: Request) -> Response:
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # Handle unsupported methods
-    return Response(
-        {"detail": f"Method '{request.method}' not allowed."},
-        status=status.HTTP_405_METHOD_NOT_ALLOWED
-    )
+    return Response({"detail": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 # TODO: Implement these endpoints:
 # - User logout

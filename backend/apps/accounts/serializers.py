@@ -77,9 +77,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
     """
     Serializer for user profile.
 
-    TODO: Implement this serializer with:
-    - Read-only fields
-    - Update validation
+    Validates:
+    - first name and last name are not empty
     """
 
     class Meta:
@@ -104,12 +103,4 @@ class UserProfileSerializer(serializers.ModelSerializer):
         value = value.strip()
         if len(value) == 0:
             raise serializers.ValidationError("Last name cannot be empty.")
-        return value
-
-    def validate_role(self, value: str) -> str:
-        """Validate role is a valid choice (for admin use only)."""
-        if value.lower().strip() not in ("admin", "instructor", "student"):
-            raise serializers.ValidationError(
-                "Invalid role. Must be one of: admin, instructor, student."
-            )
         return value
