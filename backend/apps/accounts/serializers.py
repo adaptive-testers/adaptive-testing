@@ -92,6 +92,24 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "is_verified",
             "created_at",
         ]
-        read_only_fields = ["email", "created_at"]
+        read_only_fields = ["email", "created_at", "role"]
 
-    # TODO: Add validation methods
+    def validate_first_name(self, value: str) -> str:
+        value = value.strip()
+        if len(value) == 0:
+            raise serializers.ValidationError("First name cannot be empty.")
+        return value
+
+    def validate_last_name(self, value: str) -> str:
+        value = value.strip()
+        if len(value) == 0:
+            raise serializers.ValidationError("Last name cannot be empty.")
+        return value
+
+    def validate_role(self, value: str) -> str:
+        """Validate role is a valid choice (for admin use only)."""
+        if value.lower().strip() not in ("admin", "instructor", "student"):
+            raise serializers.ValidationError(
+                "Invalid role. Must be one of: admin, instructor, student."
+            )
+        return value
