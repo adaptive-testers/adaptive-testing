@@ -121,12 +121,12 @@ def user_profile_view(request: Request) -> Response:
     PATCH /api/auth/profile/ - Update user profile
     """
     user = request.user
-    
+
     if request.method == "GET":
         # Return current user profile data
         serializer = UserProfileSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
     elif request.method == "PATCH":
         # Update user profile
         serializer = UserProfileSerializer(user, data=request.data, partial=True)
@@ -134,10 +134,10 @@ def user_profile_view(request: Request) -> Response:
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     # Handle unsupported methods
     return Response(
-        {"detail": f"Method '{request.method}' not allowed."}, 
+        {"detail": f"Method '{request.method}' not allowed."},
         status=status.HTTP_405_METHOD_NOT_ALLOWED
     )
 

@@ -328,7 +328,7 @@ class TestUserProfileView:
         assert response.status_code == status.HTTP_200_OK
         assert response.data["first_name"] == "Updated"
         assert response.data["last_name"] == "Name"
-        
+
         # Verify the user was actually updated
         user.refresh_from_db()
         assert user.first_name == "Updated"
@@ -347,7 +347,7 @@ class TestUserProfileView:
         client = APIClient()
         client.force_authenticate(user=user)
         url = reverse("accounts:profile")
-        
+
         # Test empty first name
         update_data = {"first_name": "   "}
         response = client.patch(url, update_data, format="json")
@@ -373,7 +373,7 @@ class TestUserProfileView:
         client = APIClient()
         client.force_authenticate(user=user)
         url = reverse("accounts:profile")
-        
+
         # Try to update readonly fields
         update_data = {
             "email": "hacker@example.com",
@@ -409,7 +409,7 @@ class TestUserProfileView:
         client = APIClient()
         client.force_authenticate(user=user)
         url = reverse("accounts:profile")
-        
+
         # Update only first name
         update_data = {"first_name": "Updated"}
         response = client.patch(url, update_data, format="json")
@@ -417,7 +417,7 @@ class TestUserProfileView:
         assert response.status_code == status.HTTP_200_OK
         assert response.data["first_name"] == "Updated"
         assert response.data["last_name"] == "Name"  # Should remain unchanged
-        
+
         # Verify the user was actually updated
         user.refresh_from_db()
         assert user.first_name == "Updated"
