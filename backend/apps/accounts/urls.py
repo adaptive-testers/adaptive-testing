@@ -10,6 +10,7 @@ urlpatterns = [
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("register/", views.UserRegistrationView.as_view(), name="register"),
     path("login/", views.user_login_view, name="login"),
+    path("profile/", views.user_profile_view, name="profile"),
 ]
 
 # TODO: Add these endpoints for implementing authentication
