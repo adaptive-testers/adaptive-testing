@@ -1,6 +1,6 @@
 from typing import Any
 
-from django.contrib.auth import authenticate  # noqa: F401
+from django.contrib.auth import authenticate
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -9,16 +9,11 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
-from .serializers import (  # noqa: F401
+from .serializers import (
     UserLoginSerializer,
     UserProfileSerializer,
     UserRegistrationSerializer,
 )
-
-# TODO: Create serializers.py file with these serializers:
-# - UserRegistrationSerializer DONE
-# - UserLoginSerializer DONE
-# - UserProfileSerializer
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -111,19 +106,31 @@ def user_login_view(request: Request) -> Response:
     return Response(data, status=status.HTTP_200_OK)
 
 
-@api_view(["GET", "PUT"])
+@api_view(["GET", "PATCH"])
 @permission_classes([IsAuthenticated])
-def user_profile_view(request: Request) -> Response: # noqa: ARG001
+def user_profile_view(request: Request) -> Response:
     """
     User profile endpoint.
 
-    GET /api/auth/profile/
-    PUT /api/auth/profile/
+    GET /api/auth/profile/ - Retrieve current user profile
+    PATCH /api/auth/profile/ - Update user profile
     """
-    # TODO: Implement user profile logic
-    # GET: Return current user data
-    # PUT: Update user profile
-    return Response({"message": "Not implemented"}, status=status.HTTP_501_NOT_IMPLEMENTED)
+    user = request.user
+
+    if request.method == "GET":
+        # Return current user profile data
+        serializer = UserProfileSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method == "PATCH":
+        # Update user profile
+        serializer = UserProfileSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({"detail": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 # TODO: Implement these endpoints:
 # - User logout
