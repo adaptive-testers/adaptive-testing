@@ -9,6 +9,7 @@ urlpatterns = [
     path("login/", views.user_login_view, name="login"),
     path("logout/", views.user_logout_view, name="logout"),
     path("token/refresh/", views.token_refresh_cookie_view, name="token_refresh"),
+    path("profile/", views.user_profile_view, name="profile"),
 ]
 
 # TODO: Add these endpoints for implementing authentication
