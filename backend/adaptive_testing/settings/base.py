@@ -145,10 +145,12 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
     "DEFAULT_PARSER_CLASSES": ("rest_framework.parsers.JSONParser",),
     "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "user": "1000/hour",  # General user rate limit
+        "anon": "200/hour",        # Anonymous users: 200 requests per hour
+        "user": "2000/hour",       # Authenticated users: 2000 requests per hour
     },
 }
 
