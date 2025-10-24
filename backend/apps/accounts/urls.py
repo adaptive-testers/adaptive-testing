@@ -14,7 +14,6 @@ urlpatterns = [
 # TODO: Add these endpoints for implementing authentication
 
 # Traditional Auth Endpoints
-# path('profile/', views.UserProfileView.as_view(), name='profile'),
 # path('password/change/', views.PasswordChangeView.as_view(), name='password_change'),
 # path('password/reset/', views.PasswordResetView.as_view(), name='password_reset'),
 # path('verify-email/', views.EmailVerificationView.as_view(), name='verify_email'),
